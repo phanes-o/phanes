@@ -1,0 +1,125 @@
+package server
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"path"
+	"strings"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/emicklei/proto"
+	"github.com/spf13/cobra"
+)
+
+// CmdServer the service command.
+var CmdServer = &cobra.Command{
+	Use:   "server",
+	Short: "Generate the proto Server implementations",
+	Long:  "Generate the proto Server implementations. Example: kratos proto server api/xxx.proto -target-dir=internal/service",
+	Run:   run,
+}
+
+var targetDir string
+
+func init() {
+	CmdServer.Flags().StringVarP(&targetDir, "target-dir", "t", "internal/service", "generate target directory")
+}
+
+func run(cmd *cobra.Command, args []string) {
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "Please specify the proto file. Example: phanes proto server api/xxx.proto")
+		return
+	}
+
+	reader, err := os.Open(args[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer reader.Close()
+
+	parser := proto.NewParser(reader)
+	definition, err := parser.Parse()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var (
+		pkg string
+		res []*Service
+	)
+	proto.Walk(definition,
+		proto.WithOption(func(o *proto.Option) {
+			if o.Name == "go_package" {
+				pkg = strings.Split(o.Constant.Source, ";")[0]
+			}
+		}),
+		proto.WithService(func(s *proto.Service) {
+			cs := &Service{
+				Package: pkg,
+				Service: s.Name,
+			}
+			for _, e := range s.Elements {
+				r, ok := e.(*proto.RPC)
+				if !ok {
+					continue
+				}
+				cs.Methods = append(cs.Methods, &Method{
+					Service: s.Name, Name: ucFirst(r.Name), Request: r.RequestType,
+					Reply: r.ReturnsType, Type: getMethodType(r.StreamsRequest, r.StreamsReturns),
+				})
+			}
+			res = append(res, cs)
+		}),
+	)
+	if _, err := os.Stat(targetDir); os.IsNotExist(err) {
+		fmt.Printf("Target directory: %s does not exsit\n", targetDir)
+		return
+	}
+	for _, s := range res {
+		to := path.Join(targetDir, strings.ToLower(s.Service)+".go")
+		if _, err := os.Stat(to); !os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "%s already exists: %s\n", s.Service, to)
+			override := false
+			prompt := &survey.Confirm{
+				Message: "📂 Do you want to override the file ?",
+				Help:    "Delete the existing file and create the file.",
+			}
+			e := survey.AskOne(prompt, &override)
+			if e != nil {
+				continue
+			}
+			if !override {
+				continue
+			}
+			os.RemoveAll(to)
+		}
+		b, err := s.execute()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := os.WriteFile(to, b, 0o644); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func getMethodType(streamsRequest, streamsReturns bool) MethodType {
+	if !streamsRequest && !streamsReturns {
+		return unaryType
+	} else if streamsRequest && streamsReturns {
+		return twoWayStreamsType
+	} else if streamsRequest {
+		return requestStreamsType
+	} else if streamsReturns {
+		return returnsStreamsType
+	}
+	return unaryType
+}
+
+func ucFirst(str string) string {
+	if str == "" {
+		return ""
+	}
+	return strings.ToUpper(str[:1]) + str[1:]
+}
