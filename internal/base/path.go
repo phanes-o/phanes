@@ -17,7 +17,7 @@ func Home() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	home := path.Join(dir, ".kratos")
+	home := path.Join(dir, ".phanes")
 	if _, err := os.Stat(home); os.IsNotExist(err) {
 		if err := os.MkdirAll(home, 0o700); err != nil {
 			log.Fatal(err)

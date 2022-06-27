@@ -32,7 +32,7 @@ func init() {
 	if repoURL = os.Getenv("PROJECT_LAYOUT_REPO"); repoURL == "" {
 		repoURL = "https://github.com/phanes-o/phanes-layout.git"
 	}
-	timeout = "60s"
+	timeout = "120s"
 	CmdNew.Flags().StringVarP(&repoURL, "repo-url", "r", repoURL, "layout repo")
 	CmdNew.Flags().StringVarP(&branch, "branch", "b", branch, "repo branch")
 	CmdNew.Flags().StringVarP(&timeout, "timeout", "t", timeout, "time out")

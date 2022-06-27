@@ -43,15 +43,15 @@ func (p *Project) Add(ctx context.Context, dir string, layout string, branch str
 		return err
 	}
 
-	e := os.Rename(
-		path.Join(to, "cmd", "server"),
-		path.Join(to, "cmd", p.Name),
-	)
-	if e != nil {
-		return e
-	}
+	// e := os.Rename(
+	// 	path.Join(to, "cmd", "server"),
+	// 	path.Join(to, "cmd", p.Name),
+	// )
+	// if e != nil {
+	// 	return e
+	// }
 
-	// base.Tree(to, dir)
+	base.Tree(to, dir)
 
 	fmt.Printf("\n🍺 Repository creation succeeded %s\n", color.GreenString(p.Name))
 	fmt.Print("💻 Use the following command to add a project 👇:\n\n")
