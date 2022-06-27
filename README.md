@@ -12,41 +12,59 @@ These environments and tools must be installed properly.
 go
 protoc
 protoc-gen-go
-The GO111MODULE should be enabled.
 
+The GO111MODULE should be enabled.
+```shell
 go env -w GO111MODULE=on
+```
+
 If you faced with network problem (especially you are in China Mainland), please setup GOPROXY
 
 Install Phanes tool
 You can do it either way.
 
 1. go install installation
+```
 go install github.com/phanes-o/phanes/cmd
+```
 2. Source code compilation and installation
+```sehll
 git clone https://github.com/phanes-o/phanes
 cd phanes
 make install
+```
 Project Creation
 ### create project's layout
+
+```
 phanes new helloworld
-
 cd helloworld
-### pull dependencies
-go mod download
-Compilation and Running
-### generate all codes of proto and wire etc.
-go generate ./...
+```
 
+### pull dependencies
+```sehll
+go mod download 
+```
+Compilation and Running
+### generate all codes of proto or wire etc.
+```sehll
+go generate ./...
+```
 ### run the application
+```shell
 phanes run
+```
+
 Try it out
+
 curl 'http://127.0.0.1:8000/helloworld/phanes'
 
 The response should be
 {
   "message": "Hello phanes"
-}
+}  
+
 Project Layout
 phanes CLI always pull the layout project from GitHub for project creation. The layout project is:
 
-Phanes Layout
+[Phanes Layout](https://github.com/phanes-o/phanes-layout)
