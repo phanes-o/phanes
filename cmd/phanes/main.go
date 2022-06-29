@@ -3,13 +3,16 @@ package main
 import (
 	"log"
 
-	"github.com/phanes-o/phanes/internal/project"
-	"github.com/phanes-o/phanes/internal/proto"
-	"github.com/phanes-o/phanes/internal/run"
-	"github.com/phanes-o/phanes/internal/upgrade"
+	"github.com/phanes-o/phanes/cmd/phanes/internal/project"
+	"github.com/phanes-o/phanes/cmd/phanes/internal/proto"
+	"github.com/phanes-o/phanes/cmd/phanes/internal/run"
+	"github.com/phanes-o/phanes/cmd/phanes/internal/upgrade"
 
 	"github.com/spf13/cobra"
 )
+
+// release is the current kratos tool version.
+const release = "v0.1.0"
 
 var rootCmd = &cobra.Command{
 	Use:     "phanes",
