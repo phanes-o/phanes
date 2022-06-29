@@ -3,7 +3,7 @@ package upgrade
 import (
 	"fmt"
 
-	"phanes/internal/base"
+	"github.com/phanes-o/phanes/internal/base"
 
 	"github.com/spf13/cobra"
 )
