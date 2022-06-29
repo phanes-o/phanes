@@ -37,7 +37,7 @@ func (p *Project) New(ctx context.Context, dir string, layout string, branch str
 		}
 		os.RemoveAll(to)
 	}
-	fmt.Printf("🚀 Creating service %s, layout repo is %s, please wait a moment.\n\n", p.Name, layout)
+	fmt.Printf("🚀 Creating service %s, please wait a moment.\n\n", p.Name)
 	repo := base.NewRepo(layout, branch)
 	if err := repo.CopyTo(ctx, to, p.Path, []string{".git", ".github"}); err != nil {
 		return err

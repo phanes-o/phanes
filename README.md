@@ -25,13 +25,13 @@ You can do it either way.
 
 1. go install installation
 ```
-go install github.com/phanes-o/phanes/cmd
+go install github.com/phanes-o/phanes@latest
 ```
 2. Source code compilation and installation
 ```sehll
 git clone https://github.com/phanes-o/phanes
 cd phanes
-make install
+make build
 ```
 Project Creation
 ### create project's layout
