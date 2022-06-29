@@ -1,4 +1,4 @@
 
 
 build:
-	go build -o bin/phanes cmd/*.go
+	go build -o bin/phanes phanes/*.go
