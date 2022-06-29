@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/phanes-o/phanes/internal/base"
-
 	"github.com/spf13/cobra"
 )
 
