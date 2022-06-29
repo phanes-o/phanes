@@ -8,7 +8,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/phanes-o/phanes/cmd/phanes/internal/base"
+	"github.com/phanes-o/phanes/internal/base"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"

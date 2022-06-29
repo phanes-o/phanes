@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/phanes-o/phanes/cmd/phanes/internal/project"
-	"github.com/phanes-o/phanes/cmd/phanes/internal/proto"
-	"github.com/phanes-o/phanes/cmd/phanes/internal/run"
-	"github.com/phanes-o/phanes/cmd/phanes/internal/upgrade"
+	"github.com/phanes-o/phanes/internal/project"
+	"github.com/phanes-o/phanes/internal/proto"
+	"github.com/phanes-o/phanes/internal/run"
+	"github.com/phanes-o/phanes/internal/upgrade"
 
 	"github.com/spf13/cobra"
 )

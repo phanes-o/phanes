@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/phanes-o/phanes/cmd/phanes/internal/base"
+	"github.com/phanes-o/phanes/internal/base"
 
 	"github.com/spf13/cobra"
 )

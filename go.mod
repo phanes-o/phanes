@@ -1,4 +1,4 @@
-module github.com/phanes-o/phanes/cmd/phanes
+module github.com/phanes-o/phanes
 
 go 1.18
 
