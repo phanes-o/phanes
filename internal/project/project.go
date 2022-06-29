@@ -39,7 +39,7 @@ func init() {
 	CmdNew.Flags().StringVarP(&branch, "branch", "b", branch, "repo branch")
 	CmdNew.Flags().StringVarP(&timeout, "timeout", "t", timeout, "time out")
 	CmdNew.Flags().BoolVarP(&nomod, "nomod", "", nomod, "retain go mod")
-	CmdNew.Flags().BoolVarP(&global.VerboseOut, "verbose output", "v", global.VerboseOut, "verbose output")
+	CmdNew.Flags().BoolVarP(&global.VerboseOut, "verbose", "v", global.VerboseOut, "verbose output")
 }
 
 func run(cmd *cobra.Command, args []string) {
