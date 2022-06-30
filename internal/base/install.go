@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 // GoInstall go get path.
@@ -16,7 +18,7 @@ func GoInstall(path ...string) error {
 		if !strings.Contains(p, "@") {
 			p += "@latest"
 		}
-		fmt.Printf("go install %s\n", p)
+		fmt.Println(color.GreenString("go install %s", p))
 		cmd := exec.Command("go", "install", p)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr

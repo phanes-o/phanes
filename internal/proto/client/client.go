@@ -17,7 +17,7 @@ import (
 var CmdClient = &cobra.Command{
 	Use:   "client",
 	Short: "Generate the proto client code",
-	Long:  "Generate the proto client code. Example: kratos proto client helloworld.proto",
+	Long:  "Generate the proto client code. Example: phanes proto client helloworld.proto",
 	Run:   run,
 }
 
@@ -82,8 +82,8 @@ func generate(proto string, args []string) error {
 		input = append(input, "--proto_path="+protoPath)
 	}
 	inputExt := []string{
-		"--proto_path=" + base.KratosMod(),
-		"--proto_path=" + filepath.Join(base.KratosMod(), "third_party"),
+		"--proto_path=" + base.PhanesMod(),
+		"--proto_path=" + filepath.Join(base.PhanesMod(), "third_party"),
 		"--go_out=paths=source_relative:.",
 		"--micro_out=paths=source_relative:.",
 	}

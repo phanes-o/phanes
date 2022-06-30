@@ -43,8 +43,7 @@ func ModuleVersion(path string) (string, error) {
 	}
 }
 
-// KratosMod returns kratos mod.
-func KratosMod() string {
+func PhanesMod() string {
 	// go 1.15+ read from env GOMODCACHE
 	cacheOut, _ := exec.Command("go", "env", "GOMODCACHE").Output()
 	cachePath := strings.Trim(string(cacheOut), "\n")

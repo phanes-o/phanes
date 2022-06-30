@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/phanes-o/phanes/internal/env"
 	"github.com/phanes-o/phanes/internal/project"
 	"github.com/phanes-o/phanes/internal/proto"
 	"github.com/phanes-o/phanes/internal/run"
@@ -11,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// release is the current kratos tool version.
+// release is the current phanes tool version.
 const release = "v0.1.0"
 
 var rootCmd = &cobra.Command{
@@ -26,6 +27,8 @@ func init() {
 	rootCmd.AddCommand(proto.CmdProto)
 	rootCmd.AddCommand(upgrade.CmdUpgrade)
 	rootCmd.AddCommand(run.CmdRun)
+	rootCmd.AddCommand(env.Cmd)
+
 }
 
 func main() {
