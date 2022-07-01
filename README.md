@@ -50,11 +50,16 @@ Compilation and Running
 ```sehll
 go generate ./...
 ```
+
+### generate proto
+```shell
+phanes proto client hello.proto
+phanes proto server hello.proto -t internal/service
+```
 ### run the application
 ```shell
 phanes run
 ```
-
 Project Layout
 phanes CLI always pull the layout project from GitHub for project creation. The layout project is:
 
