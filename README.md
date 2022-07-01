@@ -4,7 +4,7 @@
 
 Quick Start
 Version
-The version of Phanes must be v0.0.1 or above.
+The version of Phanes must be v0.1.0 or above.
 
 Environment Requirements
 These environments and tools must be installed properly.
@@ -54,15 +54,6 @@ go generate ./...
 ```shell
 phanes run
 ```
-
-Try it out
-
-curl 'http://127.0.0.1:8000/helloworld/phanes'
-
-The response should be
-{
-  "message": "Hello phanes"
-}  
 
 Project Layout
 phanes CLI always pull the layout project from GitHub for project creation. The layout project is:
