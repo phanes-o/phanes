@@ -1,8 +1,10 @@
 package base
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -11,6 +13,10 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/phanes-o/phanes/internal/global"
+)
+
+var (
+	ignoresname = []byte("github.com/phanes-o")
 )
 
 func Home() string {
@@ -37,24 +43,50 @@ func HomeWithDir(dir string) string {
 	return home
 }
 
+func readfileForLine(file io.Reader, replaces []string) []byte {
+	buf := bytes.Buffer{}
+	fileScanner := bufio.NewScanner(file)
+	// read line by line
+	for fileScanner.Scan() {
+		line := fileScanner.Bytes()
+		if bytes.Contains(line, ignoresname) {
+			buf.Write(line)
+			buf.WriteString("\n")
+		} else {
+			var old string
+			for i, next := range replaces {
+				if i%2 == 0 {
+					old = next
+					continue
+				}
+				bufs := bytes.ReplaceAll(line, []byte(old), []byte(next))
+				buf.Write(bufs)
+				buf.WriteString("\n")
+			}
+		}
+
+	}
+	// handle first encountered error while reading
+	if err := fileScanner.Err(); err != nil {
+		log.Fatalf("Error while reading file: %s", err)
+	}
+
+	return buf.Bytes()
+
+}
+
 func copyFile(src, dst string, replaces []string) error {
 	var err error
 	srcinfo, err := os.Stat(src)
 	if err != nil {
 		return err
 	}
-	buf, err := os.ReadFile(src)
+	fs, err := os.Open(src)
 	if err != nil {
 		return err
 	}
-	var old string
-	for i, next := range replaces {
-		if i%2 == 0 {
-			old = next
-			continue
-		}
-		buf = bytes.ReplaceAll(buf, []byte(old), []byte(next))
-	}
+	defer fs.Close()
+	buf := readfileForLine(fs, replaces)
 	return os.WriteFile(dst, buf, srcinfo.Mode())
 }
 
