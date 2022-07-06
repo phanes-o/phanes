@@ -2,6 +2,8 @@
   
 ## Phanes 	法那斯 	法那斯 	奥尔弗斯传统中的原始神。 
 
+[Doc](https://www.wolai.com/4N9KmWn5eV4yH12Qp9CS2n)
+
 Quick Start
 Version
 The version of Phanes must be v0.1.0 or above.
