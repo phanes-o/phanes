@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"phanes/internal/base"
+	"github.com/phanes-o/phanes/internal/base"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fatih/color"
@@ -37,19 +37,12 @@ func (p *Project) New(ctx context.Context, dir string, layout string, branch str
 		}
 		os.RemoveAll(to)
 	}
-	fmt.Printf("🚀 Creating service %s, layout repo is %s, please wait a moment.\n\n", p.Name, layout)
+	fmt.Printf("🚀 Creating service %s, please wait a moment.\n\n", p.Name)
 	repo := base.NewRepo(layout, branch)
 	if err := repo.CopyTo(ctx, to, p.Path, []string{".git", ".github"}); err != nil {
 		return err
 	}
-	// e := os.Rename(
-	// 	path.Join(to, "cmd", "server"),
-	// 	path.Join(to, "cmd", p.Name),
-	// )
-	// fmt.Println(path.Join(to, "cmd", p.Name))
-	// if e != nil {
-	// 	return e
-	// }
+
 	base.Tree(to, dir)
 
 	fmt.Printf("\n🍺 Project creation succeeded %s\n", color.GreenString(p.Name))

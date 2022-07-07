@@ -1,10 +1,11 @@
+## Phanes
 
-  
-## Phanes 	法那斯 	法那斯 	奥尔弗斯传统中的原始神。 
+[Doc](https://www.wolai.com/4N9KmWn5eV4yH12Qp9CS2n)
 
-Quick Start
+[Quick Start](https://learnku.com/articles/69363)
+
 Version
-The version of Phanes must be v0.0.1 or above.
+The version of Phanes must be v0.1.0 or above.
 
 Environment Requirements
 These environments and tools must be installed properly.
@@ -25,13 +26,13 @@ You can do it either way.
 
 1. go install installation
 ```
-go install github.com/phanes-o/phanes/cmd
+go install github.com/phanes-o/phanes@latest
 ```
 2. Source code compilation and installation
 ```sehll
 git clone https://github.com/phanes-o/phanes
 cd phanes
-make install
+make build
 ```
 Project Creation
 ### create project's layout
@@ -50,20 +51,16 @@ Compilation and Running
 ```sehll
 go generate ./...
 ```
+
+### generate proto
+```shell
+phanes proto client hello.proto
+phanes proto server hello.proto -t internal/service
+```
 ### run the application
 ```shell
 phanes run
 ```
-
-Try it out
-
-curl 'http://127.0.0.1:8000/helloworld/phanes'
-
-The response should be
-{
-  "message": "Hello phanes"
-}  
-
 Project Layout
 phanes CLI always pull the layout project from GitHub for project creation. The layout project is:
 

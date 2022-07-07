@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+
+	"github.com/phanes-o/phanes/internal/global"
 )
 
 // Repo is git repository manager.
@@ -80,7 +82,9 @@ func (r *Repo) Pull(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(out))
+	if global.VerboseOut {
+		fmt.Println(string(out))
+	}
 	return err
 }
 
@@ -99,7 +103,9 @@ func (r *Repo) Clone(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(out))
+	if global.VerboseOut {
+		fmt.Println(string(out))
+	}
 	return nil
 }
 

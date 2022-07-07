@@ -2,13 +2,18 @@ package main
 
 import (
 	"log"
-	"phanes/internal/project"
-	"phanes/internal/proto"
-	"phanes/internal/run"
-	"phanes/internal/upgrade"
+
+	"github.com/phanes-o/phanes/internal/env"
+	"github.com/phanes-o/phanes/internal/project"
+	"github.com/phanes-o/phanes/internal/proto"
+	"github.com/phanes-o/phanes/internal/run"
+	"github.com/phanes-o/phanes/internal/upgrade"
 
 	"github.com/spf13/cobra"
 )
+
+// release is the current phanes tool version.
+const release = "v0.1.1"
 
 var rootCmd = &cobra.Command{
 	Use:     "phanes",
@@ -22,6 +27,8 @@ func init() {
 	rootCmd.AddCommand(proto.CmdProto)
 	rootCmd.AddCommand(upgrade.CmdUpgrade)
 	rootCmd.AddCommand(run.CmdRun)
+	rootCmd.AddCommand(env.Cmd)
+
 }
 
 func main() {
