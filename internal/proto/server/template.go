@@ -29,12 +29,12 @@ func New{{ .Service }}Service() *{{ .Service }}Service {
 {{ range .Methods }}
 {{- if eq .Type 1 }}
 func (s *{{ .Service }}Service) {{ .Name }}(ctx context.Context, req {{ if eq .Request $s1 }}*emptypb.Empty
-{{ else }}*pb.{{ .Request }}, resp *pb.{{ .Reply }}{{ end }}) error {
+{{ else }}*pb.{{ .Request }}, resp *pb.{{ .Reply }}{{ end }}) errors {
     // todo
 	return nil
 }
 {{- else if eq .Type 2 }}
-func (s *{{ .Service }}Service) {{ .Name }}(ctx context.Context, stream pb.{{ .Service }}_{{ .Name }}Stream) error {
+func (s *{{ .Service }}Service) {{ .Name }}(ctx context.Context, stream pb.{{ .Service }}_{{ .Name }}Stream) errors {
 	for {
 		// todo
 		in, err := stream.Recv()
@@ -52,7 +52,7 @@ func (s *{{ .Service }}Service) {{ .Name }}(ctx context.Context, stream pb.{{ .S
     return nil
 }
 {{- else if eq .Type 3 }}
-func (s *{{ .Service }}Service) {{ .Name }}(ctx context.Context, stream pb.{{ .Service }}_{{ .Name }}Stream) error {
+func (s *{{ .Service }}Service) {{ .Name }}(ctx context.Context, stream pb.{{ .Service }}_{{ .Name }}Stream) errors {
 	for {
 		// todo
 		in, err := stream.Recv()
@@ -68,7 +68,7 @@ func (s *{{ .Service }}Service) {{ .Name }}(ctx context.Context, stream pb.{{ .S
 }
 {{- else if eq .Type 4 }}
 func (s *{{ .Service }}Service) {{ .Name }}(ctx context.Context, req {{ if eq .Request $s1 }}*emptypb.Empty
-{{ else }}*pb.{{ .Request }}, stream pb.{{ .Service }}_{{ .Name }}Stream{{ end }}) error {
+{{ else }}*pb.{{ .Request }}, stream pb.{{ .Service }}_{{ .Name }}Stream{{ end }}) errors {
 	for {
 		err := stream.Send(&pb.{{ .Reply }}{})
 		if err != nil {
