@@ -1,7 +1,5 @@
 ## Phanes
 
-[Doc](https://www.wolai.com/4N9KmWn5eV4yH12Qp9CS2n)
-
 [Quick Start](https://learnku.com/articles/69363)
 
 Version
