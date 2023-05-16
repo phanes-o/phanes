@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/phanes-o/phanes/internal/global"
+	"github.com/lizhiqpxv/phanes/internal/global"
 )
 
 // Repo is git repository manager.

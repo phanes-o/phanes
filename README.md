@@ -24,11 +24,11 @@ You can do it either way.
 
 1. go install installation
 ```
-go install github.com/phanes-o/phanes@latest
+go install github.com/lizhiqpxv/phanes@latest
 ```
 2. Source code compilation and installation
 ```sehll
-git clone https://github.com/phanes-o/phanes
+git clone https://github.com/lizhiqpxv/phanes
 cd phanes
 make build
 ```
@@ -62,4 +62,4 @@ phanes run
 Project Layout
 phanes CLI always pull the layout project from GitHub for project creation. The layout project is:
 
-[Phanes Layout](https://github.com/phanes-o/phanes-layout)
+[Phanes Layout](https://github.com/lizhiqpxv/phanes-layout)

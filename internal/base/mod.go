@@ -52,8 +52,8 @@ func PhanesMod() string {
 	if cachePath == "" {
 		cachePath = filepath.Join(gopath, "pkg", "mod")
 	}
-	if path, err := ModuleVersion("github.com/phanes-o/phanes"); err == nil {
+	if path, err := ModuleVersion("github.com/lizhiqpxv/phanes"); err == nil {
 		return filepath.Join(cachePath, path)
 	}
-	return filepath.Join(gopath, "src", "github.com", "phanes-o", "phanes")
+	return filepath.Join(gopath, "src", "github.com", "lizhiqpxv", "phanes")
 }

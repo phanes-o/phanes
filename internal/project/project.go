@@ -8,8 +8,8 @@ import (
 	"path"
 	"time"
 
-	"github.com/phanes-o/phanes/internal/base"
-	"github.com/phanes-o/phanes/internal/global"
+	"github.com/lizhiqpxv/phanes/internal/base"
+	"github.com/lizhiqpxv/phanes/internal/global"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"

@@ -11,8 +11,8 @@ var (
 		"context"
 		"phanes/store"
 
-		"github.com/phanes-o/proto/base"
-		"github.com/phanes-o/proto/dto"
+		"github.com/lizhiqpxv/proto/base"
+		"github.com/lizhiqpxv/proto/dto"
 		log "go-micro.dev/v4/logger"
 	)
 	

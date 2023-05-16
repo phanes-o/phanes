@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
-	"github.com/phanes-o/phanes/internal/base"
+	"github.com/lizhiqpxv/phanes/internal/base"
 	"github.com/spf13/cobra"
 )
 

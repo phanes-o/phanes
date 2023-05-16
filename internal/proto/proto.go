@@ -1,10 +1,10 @@
 package proto
 
 import (
-	"github.com/phanes-o/phanes/internal/proto/add"
+	"github.com/lizhiqpxv/phanes/internal/proto/add"
 
-	"github.com/phanes-o/phanes/internal/proto/client"
-	"github.com/phanes-o/phanes/internal/proto/server"
+	"github.com/lizhiqpxv/phanes/internal/proto/client"
+	"github.com/lizhiqpxv/phanes/internal/proto/server"
 
 	"github.com/spf13/cobra"
 )

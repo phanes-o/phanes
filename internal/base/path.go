@@ -12,11 +12,11 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/phanes-o/phanes/internal/global"
+	"github.com/lizhiqpxv/phanes/internal/global"
 )
 
 var (
-	ignoresname = []byte("github.com/phanes-o")
+	ignoresname = []byte("github.com/lizhiqpxv")
 )
 
 func Home() string {

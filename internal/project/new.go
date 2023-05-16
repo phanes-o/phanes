@@ -6,7 +6,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/phanes-o/phanes/internal/base"
+	"github.com/lizhiqpxv/phanes/internal/base"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fatih/color"
