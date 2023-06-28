@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/phanes-o/phanes/internal/env"
+	"github.com/phanes-o/phanes/internal/generate"
 	"github.com/phanes-o/phanes/internal/project"
 	"github.com/phanes-o/phanes/internal/proto"
 	"github.com/phanes-o/phanes/internal/run"
@@ -28,7 +29,7 @@ func init() {
 	rootCmd.AddCommand(upgrade.CmdUpgrade)
 	rootCmd.AddCommand(run.CmdRun)
 	rootCmd.AddCommand(env.Cmd)
-
+	rootCmd.AddCommand(generate.Cmd)
 }
 
 func main() {

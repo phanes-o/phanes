@@ -1,0 +1,32 @@
+project: hello
+entities:
+  -
+    business_name: user
+    fields:
+      -
+        name: id
+        type: int64
+        parameter: true
+        required: true
+        entity_tag:
+          auto: false
+          tags:
+            -
+              name: json
+              value: name
+            -
+              name: gorm
+              value: primaryKey;unique;type:bigint
+        model_tag:
+          auto: true
+      -
+        name: name
+        type: string
+        parameter: true
+        required: true
+        entity_tag:
+          auto: true
+        model_tag:
+          auto: true
+destinations:
+  bll: "./test/bll"

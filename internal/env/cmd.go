@@ -9,7 +9,7 @@ var (
 
 	Cmd = &cobra.Command{
 		Use:   "env",
-		Short: "Check or edit phanes environment",
+		Short: "Check or update phanes running environment",
 		RunE:  write,
 	}
 	installCmd = &cobra.Command{
@@ -25,8 +25,7 @@ var (
 )
 
 func init() {
-	Cmd.PersistentFlags().BoolVarP(&boolVarVerbose,
-		"verbose", "v", false, "Enable log output")
+	Cmd.PersistentFlags().BoolVarP(&boolVarVerbose, "verbose", "v", false, "Enable log output")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(checkCmd)
 }
