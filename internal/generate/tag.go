@@ -55,20 +55,35 @@ func (tag *Tag) String() string {
 	return buf.String()
 }
 
-func mergeTags(tags ...*Tag) string {
+func mergeTags(name PathName, tags ...*Tag) string {
 	if len(tags) == 1 {
+		if (name == EntityName && strings.Contains(tags[0].Name, "validat")) || (name == ModelName && strings.Contains(tags[0].Name, "orm")) {
+			return ""
+		}
 		return tags[0].String()
 	}
+	var exists = make(map[string]struct{})
 	var str string
 	for i, t := range tags {
 		tag := t
+		if _, ok := exists[t.Name]; ok || t.Name == "" {
+			continue
+		}
+		if (name == EntityName && strings.Contains(t.Name, "validat")) || (name == ModelName && strings.Contains(t.Name, "orm")) {
+			continue
+		}
+
 		if i == 0 {
 			str = strings.TrimRight(tag.String(), "`")
 		} else {
 			str += " " + strings.Trim(tag.String(), "`")
 		}
+		exists[t.Name] = struct{}{}
 	}
-	return str + "`"
+	if len(str) > 0 {
+		return str + "`"
+	}
+	return ""
 }
 
 func buildTagsFromTagsText(texts map[string]Value) []*Tag {
@@ -103,48 +118,65 @@ func parseStructTags(tag *ast.BasicLit) map[string]Value {
 	return tags
 }
 
-func buildTag(field string, name PathName, fields []*Field) *ast.BasicLit {
+// @params
+// name: field name
+// path: generate type
+func buildTag(name string, path PathName, fields []*Field) *ast.BasicLit {
+	var (
+		tag  string
+		tags = make([]*Tag, 0, 0)
+	)
 	for _, f := range fields {
-		if field == f.Name {
+		if name == f.Name {
 			if len(f.Tags) >= 1 {
-				if f.Rule.AutoGenGormTag && !containsGormTag(f.Tags) {
-					f.Tags = append(f.Tags, buildEntityTag(f))
+				switch path {
+				case EntityName:
+					if f.Rule.AutoGenGormTag && !containsTagType(f.Tags, "gorm") {
+						tags = append(f.Tags, buildEntityTag(f))
+					}
+				case ModelName:
+
 				}
 			}
 			if len(f.Tags) == 0 {
-				switch name {
+				switch path {
 				case EntityName:
 					if f.Rule.AutoGenGormTag {
-						f.Tags = append(f.Tags, buildEntityTag(f))
+						tags = append(f.Tags, buildEntityTag(f))
 					}
 				case ModelName:
 					if f.Rule.EnableValidator {
-						f.Tags = append(f.Tags, buildModelTag(f))
+						tags = append(f.Tags, buildModelTag(f))
 					}
 				}
 			}
-			var tag string = mergeTags(f.Tags...)
-			return &ast.BasicLit{
-				Kind:  token.STRING,
-				Value: tag,
-			}
 		}
+		if !containsTagType(tags, "json") {
+			tags = append(tags, buildJsonSnakeCodeTag(name))
+		}
+		tag = mergeTags(path, tags...)
 	}
-	return nil
+	return &ast.BasicLit{
+		Kind:  token.STRING,
+		Value: tag,
+	}
 }
 
-func buildModelTag(f *Field) *Tag {
-
-	return &Tag{}
-}
-
-func containsGormTag(tags []*Tag) bool {
+func containsTagType(tags []*Tag, s string) bool {
 	for _, t := range tags {
-		if t.Name == "gorm" {
+		if t.Name == s {
 			return true
 		}
 	}
 	return false
+}
+
+func buildModelTag(f *Field) *Tag {
+	return buildJsonSnakeCodeTag(f.Name)
+}
+
+func buildJsonSnakeCodeTag(fieldName string) *Tag {
+	return NewTag("json").AddValue(Value(Camel2Case(fieldName)))
 }
 
 func buildEntityTag(f *Field) *Tag {

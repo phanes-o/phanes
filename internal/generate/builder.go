@@ -9,6 +9,16 @@ import (
 	"strings"
 )
 
+const (
+	CreateRequest = "CreateRequest"
+	UpdateRequest = "UpdateRequest"
+	DeleteRequest = "DeleteRequest"
+	InfoRequest   = "InfoRequest"
+	InfoResponse  = "InfoResponse"
+	ListRequest   = "ListRequest"
+	ListResponse  = "ListResponse"
+)
+
 func buildTemplateField(project string, structName StructName, n *ast.StructType) *TemplateField {
 	var (
 		fields = make([]*Field, 0)
@@ -17,10 +27,11 @@ func buildTemplateField(project string, structName StructName, n *ast.StructType
 		tags := parseStructTags(f.Tag)
 		var rule = buildRuleFromTags(tags)
 		field := &Field{
-			Name: f.Names[0].Name,
-			Type: processFieldType(f.Type),
-			Rule: rule,
-			Tags: buildTagsFromTagsText(tags),
+			Name:      f.Names[0].Name,
+			SnakeName: Camel2Case(f.Names[0].Name),
+			Type:      processFieldType(f.Type),
+			Rule:      rule,
+			Tags:      buildTagsFromTagsText(tags),
 		}
 		fields = append(fields, field)
 	}
@@ -62,7 +73,8 @@ func buildEntityCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 		Decls: decls,
 	}
 	var buf = bytes.NewBuffer(nil)
-	printer.Fprint(buf, entity, file)
+	config := printer.Config{Mode: printer.UseSpaces, Tabwidth: 4}
+	config.Fprint(buf, entity, file)
 
 	return buf
 }
@@ -72,7 +84,6 @@ func buildModelCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 		model       = token.NewFileSet()
 		packageName = "model"
 	)
-
 	decls := []ast.Decl{
 		buildImport(tmpl),
 		buildCreateRequest(n, tmpl),
@@ -89,7 +100,8 @@ func buildModelCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 		Decls: decls,
 	}
 	var buf = bytes.NewBuffer(nil)
-	printer.Fprint(buf, model, file)
+	config := printer.Config{Mode: printer.UseSpaces, Tabwidth: 4}
+	config.Fprint(buf, model, file)
 	return buf
 }
 
@@ -100,9 +112,7 @@ func buildEntityStruct(n ast.Node, tmpl *TemplateField) ast.Decl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
-				fieldName := f.Names[0].Name
-				f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
-				fields = append(fields, f)
+				fields = append(fields, buildField(f, EntityName, tmpl))
 			}
 		}
 	}
@@ -137,7 +147,15 @@ func buildEntityMethod(n ast.Node) ast.Decl {
 					},
 				},
 			},
-			Type: &ast.FuncType{},
+			Type: &ast.FuncType{
+				Results: &ast.FieldList{
+					List: []*ast.Field{
+						{
+							Type: ast.NewIdent("string"),
+						},
+					},
+				},
+			},
 			Body: &ast.BlockStmt{
 				List: []ast.Stmt{
 					&ast.ReturnStmt{
@@ -182,11 +200,12 @@ func buildDeleteRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 				Names: []*ast.Ident{{Name: f.Name}},
 				Type:  ast.NewIdent(f.Type),
 			}
+			field.Tag = buildTag(f.Name, ModelName, tmpl.Fields)
 		}
 	}
 
 	typeSpec := &ast.TypeSpec{
-		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, "DeleteRequest")),
+		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, DeleteRequest)),
 		Type: &ast.StructType{
 			Fields: &ast.FieldList{List: []*ast.Field{field}},
 		},
@@ -199,27 +218,24 @@ func buildDeleteRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 }
 
 func buildInfoRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
-	var fields = make([]*ast.Field, 0)
-
-	switch node := n.(type) {
-	case *ast.TypeSpec:
-		if s, ok := node.Type.(*ast.StructType); ok {
-			for _, f := range s.Fields.List {
-				fieldName := f.Names[0].Name
-				if fieldName == "Id" || fieldName == "ID" {
-					f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
-					fields = append(fields, f)
-				}
+	var field *ast.Field
+	for _, f := range tmpl.Fields {
+		if f.Name == "Id" || f.Name == "ID" {
+			field = &ast.Field{
+				Names: []*ast.Ident{{Name: f.Name}},
+				Type:  ast.NewIdent(f.Type),
 			}
+			field.Tag = buildTag(f.Name, ModelName, tmpl.Fields)
 		}
 	}
 
 	typeSpec := &ast.TypeSpec{
-		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, "InfoRequest")),
+		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, InfoRequest)),
 		Type: &ast.StructType{
-			Fields: &ast.FieldList{List: fields},
+			Fields: &ast.FieldList{List: []*ast.Field{field}},
 		},
 	}
+
 	return &ast.GenDecl{
 		Tok:   token.STRUCT,
 		Specs: []ast.Spec{typeSpec},
@@ -227,7 +243,6 @@ func buildInfoRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 }
 
 func buildInfoResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
-	// todo:
 	var fields = make([]*ast.Field, 0)
 
 	switch node := n.(type) {
@@ -235,16 +250,14 @@ func buildInfoResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
 				fieldName := f.Names[0].Name
-				if fieldName == "Id" || fieldName == "ID" {
-					f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
-					fields = append(fields, f)
-				}
+				fields = append(fields, f)
+				f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
 			}
 		}
 	}
 
 	typeSpec := &ast.TypeSpec{
-		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, "InfoResponse")),
+		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, InfoResponse)),
 		Type: &ast.StructType{
 			Fields: &ast.FieldList{List: fields},
 		},
@@ -262,15 +275,20 @@ func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
-				fieldName := f.Names[0].Name
-				f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
-				fields = append(fields, f)
+				rule := tmpl.getFieldRule(f.Names[0].Name)
+				if rule.Parameter {
+					field := buildField(f, ModelName, tmpl)
+					if !rule.Required {
+						field = rebuildFieldAsStar(field, tmpl)
+					}
+					fields = append(fields, field)
+				}
 			}
 		}
 	}
 
 	typeSpec := &ast.TypeSpec{
-		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, "ListRequest")),
+		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, ListRequest)),
 		Type: &ast.StructType{
 			Fields: &ast.FieldList{List: fields},
 		},
@@ -282,24 +300,29 @@ func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 }
 
 func buildListResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
-	// todo:
 	var fields = make([]*ast.Field, 0)
 
 	switch node := n.(type) {
 	case *ast.TypeSpec:
-		if s, ok := node.Type.(*ast.StructType); ok {
-			for _, f := range s.Fields.List {
-				fieldName := f.Names[0].Name
-				if fieldName == "Id" || fieldName == "ID" {
-					f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
-					fields = append(fields, f)
-				}
+		if _, ok := node.Type.(*ast.StructType); ok {
+			total := &ast.Field{
+				Names: []*ast.Ident{ast.NewIdent("Total")},
+				Type:  ast.NewIdent("int64"),
+				Tag:   buildTag("Total", ModelName, tmpl.Fields),
 			}
+			list := &ast.Field{
+				Names: []*ast.Ident{ast.NewIdent("List")},
+				Type: &ast.ArrayType{
+					Elt: ast.NewIdent(node.Name.Name),
+				},
+				Tag: buildTag("List", ModelName, tmpl.Fields),
+			}
+			fields = append(fields, total, list)
 		}
 	}
 
 	typeSpec := &ast.TypeSpec{
-		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, "ListResponse")),
+		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, ListResponse)),
 		Type: &ast.StructType{
 			Fields: &ast.FieldList{List: fields},
 		},
@@ -317,15 +340,20 @@ func buildUpdateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
-				fieldName := f.Names[0].Name
-				f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
-				fields = append(fields, f)
+				rule := tmpl.getFieldRule(f.Names[0].Name)
+				if rule.Parameter {
+					field := buildField(f, ModelName, tmpl)
+					if !rule.Required {
+						field = rebuildFieldAsStar(field, tmpl)
+					}
+					fields = append(fields, field)
+				}
 			}
 		}
 	}
 
 	typeSpec := &ast.TypeSpec{
-		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, "UpdateRequest")),
+		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, UpdateRequest)),
 		Type: &ast.StructType{
 			Fields: &ast.FieldList{List: fields},
 		},
@@ -343,15 +371,20 @@ func buildCreateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
-				fieldName := f.Names[0].Name
-				f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
-				fields = append(fields, f)
+				rule := tmpl.getFieldRule(f.Names[0].Name)
+				if rule.Parameter {
+					field := buildField(f, ModelName, tmpl)
+					if !rule.Required {
+						field = rebuildFieldAsStar(field, tmpl)
+					}
+					fields = append(fields, field)
+				}
 			}
 		}
 	}
 
 	typeSpec := &ast.TypeSpec{
-		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, "CreateRequest")),
+		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, CreateRequest)),
 		Type: &ast.StructType{
 			Fields: &ast.FieldList{List: fields},
 		},
@@ -360,4 +393,64 @@ func buildCreateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 		Tok:   token.STRUCT,
 		Specs: []ast.Spec{typeSpec},
 	}
+}
+
+func buildField(f *ast.Field, path PathName, tmpl *TemplateField) *ast.Field {
+	field := &ast.Field{
+		Names: []*ast.Ident{ast.NewIdent(f.Names[0].Name)},
+		Type:  f.Type,
+		Tag:   buildTag(f.Names[0].Name, path, tmpl.Fields),
+	}
+	return field
+}
+
+func rebuildFieldAsStar(f *ast.Field, tmpl *TemplateField) *ast.Field {
+	switch fType := f.Type.(type) {
+	case *ast.MapType:
+		return f
+	case *ast.ArrayType:
+		return f
+	case *ast.StarExpr:
+		return f
+	case *ast.SelectorExpr:
+		newType := transType(fmt.Sprintf("%s.%s", fType.X, fType.Sel))
+		if newType == nil {
+			return f
+		}
+		f.Type = newType
+		return f
+	}
+	f.Type = &ast.StarExpr{
+		X: f.Type,
+	}
+	return f
+}
+
+func transType(tName string) ast.Expr {
+	var res ast.Expr
+	switch tName {
+	case "pq.StringArray":
+		res = &ast.ArrayType{
+			Elt: ast.NewIdent("string"),
+		}
+	case "pq.Float32Array":
+		res = &ast.ArrayType{
+			Elt: ast.NewIdent("float32"),
+		}
+	case "pq.Float64Array":
+		res = &ast.ArrayType{
+			Elt: ast.NewIdent("float64"),
+		}
+	case "pq.int32Array":
+		res = &ast.ArrayType{
+			Elt: ast.NewIdent("int32"),
+		}
+	case "pq.int64Array":
+		res = &ast.ArrayType{
+			Elt: ast.NewIdent("int64"),
+		}
+	default:
+		return nil
+	}
+	return res
 }

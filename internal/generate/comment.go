@@ -10,13 +10,12 @@ func parseCommentGenType(s string) []GenType {
 	//codeBuild: bll;store.mysql;store.postgres;api.http;api.grpc;entity;model
 	var (
 		apiAll   bool
-		storeAll bool
 		genTypes = make([]GenType, 0)
 	)
 	split := strings.Split(s, ";")
 	if len(split) > 0 {
 		for _, t := range split {
-			switch t {
+			switch GenType(t) {
 			case GenTypeBll:
 				genTypes = append(genTypes, GenTypeBll)
 			case GenTypeModel:
@@ -30,9 +29,6 @@ func parseCommentGenType(s string) []GenType {
 			case GenTypeApiAll:
 				apiAll = true
 				genTypes = append(genTypes, GenTypeApiAll)
-			case GenTypeStoreAll:
-				storeAll = true
-				genTypes = append(genTypes, GenTypeStoreAll)
 			case GenTypeStoreMysql:
 				genTypes = append(genTypes, GenTypeStoreMysql)
 			case GenTypeStorePostgres:
@@ -42,10 +38,6 @@ func parseCommentGenType(s string) []GenType {
 	}
 	for i, v := range genTypes {
 		if apiAll && (v == GenTypeHttpApi || v == GenTypeGrpcApi) {
-			tmp := append(genTypes[:i], genTypes[i+1:]...)
-			genTypes = tmp
-		}
-		if storeAll && (v == GenTypeStoreMysql || v == GenTypeStorePostgres) {
 			tmp := append(genTypes[:i], genTypes[i+1:]...)
 			genTypes = tmp
 		}

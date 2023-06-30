@@ -45,8 +45,9 @@ func run(cmd *cobra.Command, args []string) {
 
 	// Build Generator
 	// Parse template and replace it
-	if generator, err = ReadSource(configName); err == nil {
-
+	if generator, err = ReadSource(configName); err != nil {
+		fmt.Fprintf(os.Stderr, "\033[31mERROR: Generate failed %s \033[m\n", err)
+		return
 	}
 	// Generate nad write code to destination file.
 	if err = generator.Generate(); err != nil {

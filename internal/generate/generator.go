@@ -6,6 +6,9 @@ import (
 	"go/format"
 	"html/template"
 	"strings"
+
+	"github.com/fatih/color"
+	templ "github.com/phanes-o/phanes/internal/generate/template"
 )
 
 const (
@@ -44,6 +47,7 @@ type TemplateField struct {
 	Fields      []*Field
 	Imports     []string
 	StructName  StructName
+	CamelName   string
 	ProjectName string
 }
 
@@ -67,11 +71,12 @@ func (tf *TemplateField) getFieldTags(name string) []*Tag {
 
 type Field struct {
 	// Field name
-	Name string `yaml:"name"`
+	Name string
 
+	SnakeName string
 	// Field type
 	// support type: int string int32 int64 float64 time.Time and others type
-	Type string `yaml:"type"`
+	Type string
 
 	// Field's tags
 	Tags []*Tag
@@ -81,58 +86,131 @@ type Field struct {
 }
 
 func (g *Generator) Generate() error {
-	//var (
-	//	err  error
-	//	text []byte
-	//)
+	var (
+		ok       bool
+		err      error
+		genTypes []GenType
+		result   *Result
+		buf      *bytes.Buffer
+	)
 
-	//fileName := Camel2Case("g.TemplateField.StructName")
-	//templates := temp.GetTemplate()
-	//for t, tmpl := range templates {
-	//	var filepath string
-	//	switch t {
-	//	case temp.BllTemplate:
-	//		filepath = fmt.Sprintf("%s/%s.go", destinations.Bll, fileName)
-	//	case temp.HttpApiTemplate:
-	//		if api == ApiTypeGrpc {
-	//			continue
-	//		}
-	//		filepath = fmt.Sprintf("%s/%s.go", destinations.HttpApi, fileName)
-	//	case temp.GrpcApiTemplate:
-	//		filepath = fmt.Sprintf("%s/%s.go", destinations.GrpcApi, fileName)
-	//		if api == ApiTypeHttp {
-	//			continue
-	//		}
-	//	case temp.EntityTemplate:
-	//		filepath = fmt.Sprintf("%s/%s.go", destinations.Entity, fileName)
-	//	case temp.ModelTemplate:
-	//		filepath = fmt.Sprintf("%s/%s.go", destinations.Model, fileName)
-	//	case temp.StoreMysqlTemplate:
-	//		if database == DatabaseTypePostgres {
-	//			continue
-	//		}
-	//		filepath = fmt.Sprintf("%s/%s.go", destinations.StoreMysql, fileName)
-	//	case temp.StorePostgresTemplate:
-	//		if database == DatabaseTypeMysql {
-	//			continue
-	//		}
-	//		filepath = fmt.Sprintf("%s/%s.go", destinations.StorePostgres, fileName)
-	//	case temp.StoreInterfaceTemplate:
-	//		filepath = fmt.Sprintf("%s/%s.go", destinations.StoreInterface, fileName)
-	//	}
-	//
-	//	if text, err = parse(tmpl, g); err != nil {
-	//		return err
-	//	}
-	//
-	//	if !fileExists(filepath) {
-	//		if err = writeFile(filepath, text); err != nil {
-	//			return err
-	//		}
-	//	}
-	//}
+	for structName, tmplField := range g.TemplateField {
+		if genTypes, ok = g.GenTypes[structName]; !ok {
+			continue
+		}
+		tmplField.CamelName = camelCase(string(tmplField.StructName))
+
+		result = g.Results[structName]
+		for _, t := range genTypes {
+			if result.Codes == nil {
+				result.Codes = make(map[PathName]*bytes.Buffer)
+			}
+			switch t {
+			case GenTypeBll:
+				if buf, err = buildCodeFromTemplate(templ.BllTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[BllName] = buf
+			case GenTypeApiAll:
+				if buf, err = buildCodeFromTemplate(templ.GrpcApiTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[GrpcApiName] = buf
+
+				if buf, err = buildCodeFromTemplate(templ.HttpApiTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[HttpApiName] = buf
+			case GenTypeHttpApi:
+				if buf, err = buildCodeFromTemplate(templ.HttpApiTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[HttpApiName] = buf
+			case GenTypeGrpcApi:
+				if buf, err = buildCodeFromTemplate(templ.GrpcApiTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[GrpcApiName] = buf
+
+			case GenTypeStoreMysql:
+				if buf, err = buildCodeFromTemplate(templ.StoreInterfaceTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[StoreInterfaceName] = buf
+
+				if buf, err = buildCodeFromTemplate(templ.StoreMysqlTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[StoreMysqlName] = buf
+			case GenTypeStorePostgres:
+				if buf, err = buildCodeFromTemplate(templ.StoreInterfaceTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[StoreInterfaceName] = buf
+
+				if buf, err = buildCodeFromTemplate(templ.StorePostgresTemplate, tmplField); err != nil {
+					return err
+				}
+				result.Codes[StorePostgresName] = buf
+			}
+		}
+		if buf, err = buildCodeFromTemplate(templ.MappingTemplate, tmplField); err != nil {
+			return err
+		}
+		result.Codes[MappingName] = buf
+
+		g.Results[structName] = result
+	}
+
+	g.save()
 
 	return nil
+}
+
+func (g *Generator) save() {
+	for k, v := range g.Results {
+		for pathName, code := range v.Codes {
+			path := v.Path[pathName]
+			if !fileExists(path) {
+				if err := writeFile(path, code.Bytes()); err != nil {
+					fmt.Println(color.RedString(fmt.Sprintf("ERROR: Failed to save [%s] code", k)), "❌  ")
+					continue
+				}
+				fmt.Println(color.GreenString(fmt.Sprintf("[%s] code generate successfully!", path)), "✅  ")
+			} else {
+				fmt.Println(color.YellowString(fmt.Sprintf("Notify: [%s] code already exist", path)), "⚠️ ")
+			}
+		}
+	}
+
+}
+
+func buildCodeFromTemplate(templType templ.Type, fields *TemplateField) (*bytes.Buffer, error) {
+	var (
+		err  error
+		text []byte
+	)
+	tmpl := templ.Get(templType)
+	if text, err = parse(tmpl, fields); err != nil {
+		return nil, err
+	}
+	return bytes.NewBuffer(text), nil
+}
+
+func genTypeTransToPathName(t GenType) PathName {
+	switch t {
+	case GenTypeBll:
+		return BllName
+	case GenTypeModel:
+		return ModelName
+	case GenTypeEntity:
+		return EntityName
+	case GenTypeStoreMysql:
+		return StoreMysqlName
+	case GenTypeStorePostgres:
+		return StorePostgresName
+	}
+	return ""
 }
 
 func formatParams(params ...string) (ret string) {
@@ -152,7 +230,7 @@ func importNotExist(strType string) bool {
 	return true
 }
 
-func parse(temp string, generator *Generator) ([]byte, error) {
+func parse(temp string, fields *TemplateField) ([]byte, error) {
 	var (
 		tmpl = template.New("")
 		err  error
@@ -167,7 +245,7 @@ func parse(temp string, generator *Generator) ([]byte, error) {
 		return nil, err
 	}
 
-	if err = p.Execute(buf, generator); err != nil {
+	if err = p.Execute(buf, fields); err != nil {
 		return nil, err
 	}
 	newStr := strings.Replace(buf.String(), "|| {", "{", -1)

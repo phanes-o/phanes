@@ -13,17 +13,17 @@ import (
 	"{{.ProjectName}}/model/entity"
 )
 
-type I{{.TitleName}} interface {
+type I{{.StructName}} interface {
 	// Create 
-	Create(ctx context.Context, e *entity.{{.TitleName}}) (int64, error)
+	Create(ctx context.Context, e *entity.{{.StructName}}) (int64, error)
 	// Find 
-	Find(ctx context.Context, in *model.{{.TitleName}}InfoRequest) (*entity.{{.TitleName}}, error)
+	Find(ctx context.Context, in *model.{{.StructName}}InfoRequest) (*entity.{{.StructName}}, error)
 	// Update 
 	Update(ctx context.Context, id int64, updates map[string]interface{}) (error)
 	// Delete 
 	Delete(ctx context.Context, id int64) (error)
 	// List 
-	List(ctx context.Context, in *model.{{.TitleName}}ListRequest) (int, []*entity.{{.TitleName}}, error)
+	List(ctx context.Context, in *model.{{.StructName}}ListRequest) (int, []*entity.{{.StructName}}, error)
 	// ExecTransaction 
 	ExecTransaction(ctx context.Context, callback func(ctx context.Context) error) error 
 }

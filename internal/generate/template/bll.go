@@ -8,7 +8,7 @@ var bll = `
 {{$zero := 0}}
 {{$empty := ""}}
 {{$nil := "nil"}}
-{{$true := "true"}}
+{{$true := true}}
 {{$or := "||"}}
 {{$ID := "Id"}}
 {{$CreatedAt := "created_at"}}
@@ -30,58 +30,52 @@ import (
 	"{{.ProjectName}}/event"
 	"{{.ProjectName}}/model"
 	"{{.ProjectName}}/model/entity"
+	"{{.ProjectName}}/model/mapping"
 	"{{.ProjectName}}/store"
 	"{{.ProjectName}}/store/postgres"
 	"time"
 
 	{{range $value :=.Fields}}
-		{{if eq $value.JsonTag "user_id" }}
+		{{if eq $value.SnakeName "user_id" }}
 			"{{$projectName}}/auth"
 		{{end}}
 	{{end}}
 )
 
-type {{.Name}} struct{
-	i{{.TitleName}} store.I{{.TitleName}}
+type {{.CamelName}} struct{
+	i{{.StructName}} store.I{{.StructName}}
 }
 
-var {{.TitleName}} = &{{.Name}}{
-	i{{.TitleName}}: postgres.{{.TitleName}},
+var {{.StructName}} = &{{.CamelName}}{
+	i{{.StructName}}: postgres.{{.StructName}},
 }
 
-func (a *{{.Name}}) init()     func()   {
+func (a *{{.CamelName}}) init()     func()   {
 	return func() {}
 }
 
-func (a *{{.Name}}) onEvent(*event.Data) {}
+func (a *{{.CamelName}}) onEvent(*event.Data) {}
 
 // Create
-func (a *{{.Name}}) Create(ctx context.Context, in *model.{{.TitleName}}CreateRequest) error  {
+func (a *{{.CamelName}}) Create(ctx context.Context, in *model.{{.StructName}}CreateRequest) error  {
 	var (
 		err error
 	)
-	
-	{{range $v := .Fields}}
-		{{if eq .Json $UserId}}
-			in.UserId, _ = auth.ContextUserID(ctx)
-		{{end}}
-	{{end}}
-
-	c := build{{.TitleName}}(in)
-	_, err = a.i{{.TitleName}}.Create(ctx,c)
+	c := build{{.StructName}}(in)
+	_, err = a.i{{.StructName}}.Create(ctx,c)
 	return err
 }
 
 // Update 
-func (a *{{.Name}}) Update(ctx context.Context, in *model.{{.TitleName}}UpdateRequest) error  {
+func (a *{{.CamelName}}) Update(ctx context.Context, in *model.{{.StructName}}UpdateRequest) error  {
 	var (
 		dict = make(map[string]interface{})
 	)
 	{{range $v := .Fields}}
-		{{if eq .Parameter $true}}
-			{{if ne .Required $true}}
+		{{if eq .Rule.Parameter $true}}
+			{{if ne .Rule.Required $true}}
 			if in.{{.Name}} != nil {
-				dict["{{.Json}}"] = in.{{.Name}}
+				dict["{{.SnakeName}}"] = in.{{.Name}}
 			}
 			{{end}}
 		{{end}}
@@ -89,60 +83,60 @@ func (a *{{.Name}}) Update(ctx context.Context, in *model.{{.TitleName}}UpdateRe
 	// do other update here
 	updateAt := time.Now().Unix()
 	in.UpdatedAt = &updateAt
-	return a.i{{.TitleName}}.Update(ctx, in.Id, dict)
+	return a.i{{.StructName}}.Update(ctx, in.Id, dict)
 }
 
 // Delete 
-func (a *{{.Name}}) Delete(ctx context.Context, in *model.{{.TitleName}}DeleteRequest) error  {
-	return a.i{{.TitleName}}.Delete(ctx,in.Id)
+func (a *{{.CamelName}}) Delete(ctx context.Context, in *model.{{.StructName}}DeleteRequest) error  {
+	return a.i{{.StructName}}.Delete(ctx,in.Id)
 }
 
 // List 
-func (a *{{.Name}}) List(ctx context.Context, in *model.{{.TitleName}}ListRequest) (*model.{{.TitleName}}ListResponse, error)  {
+func (a *{{.CamelName}}) List(ctx context.Context, in *model.{{.StructName}}ListRequest) (*model.{{.StructName}}ListResponse, error)  {
 	var (
 		err error
 		total int
-		list []*entity.{{.TitleName}} 
-		out = &model.{{.TitleName}}ListResponse{}
+		list []*entity.{{.StructName}} 
+		out = &model.{{.StructName}}ListResponse{}
 	)
 
-	if total, list, err = a.i{{.TitleName}}.List(ctx,in); err != nil {
+	if total, list, err = a.i{{.StructName}}.List(ctx,in); err != nil {
 		return nil, err
 	}
 	
 	out.Total = total
-	out.List = model.{{.TitleName}}sEntityToDto(list)
+	out.List = mapping.{{.StructName}}sEntityToDto(list)
 
 	return out, nil
 }
 
 // Find 
-func (a *{{.Name}}) Find(ctx context.Context, in *model.{{.TitleName}}InfoRequest) (*model.{{.TitleName}}Info, error)  {
+func (a *{{.CamelName}}) Find(ctx context.Context, in *model.{{.StructName}}InfoRequest) (*model.{{.StructName}}Info, error)  {
 	var (
 		err error
-		data *entity.{{.TitleName}} 
-		out = &model.{{.TitleName}}Info{}
+		data *entity.{{.StructName}} 
+		out = &model.{{.StructName}}Info{}
 	)
 
-	if data, err = a.i{{.TitleName}}.Find(ctx,in); err != nil {
+	if data, err = a.i{{.StructName}}.Find(ctx,in); err != nil {
 		return nil, err
 	}
 	
-	out = model.{{.TitleName}}EntityToDto(data)
+	out = mapping.{{.StructName}}EntityToDto(data)
 	return out, nil
 }
 
-// build{{.TitleName}} build entity
-func build{{.TitleName}}(in *model.{{.TitleName}}CreateRequest) *entity.{{.TitleName}} {
+// build{{.StructName}} build entity
+func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.StructName}} {
 	// todo: check the entity is required
-	return &entity.{{.TitleName}}{
+	return &entity.{{.StructName}}{
 		{{range $v :=.Fields}}
-			{{if eq .Json $CreatedAt}}
+			{{if eq .SnakeName $CreatedAt}}
 				{{.Name}}:time.Now().Unix(),
-			{{else if eq .Json $UpdatedAt}}
+			{{else if eq .SnakeName $UpdatedAt}}
 				{{.Name}}:time.Now().Unix(),
 			{{else}}
-				{{if ne .Name $ID}}{{.Name}}: {{if eq .Parameter $true}} {{if ne .Required $true}}in.{{.Name}},{{else}}in.{{.Name}},{{end}}{{else}}{{if eq .Type $string}}"",{{else}}0,{{end}}{{end}}{{end}}
+				{{if ne .Name $ID}}{{.Name}}: {{if eq .Rule.Parameter $true}} {{if ne .Rule.Required $true}}in.{{.Name}},{{else}}in.{{.Name}},{{end}}{{else}}{{if eq .Type $string}}"",{{else}}0,{{end}}{{end}}{{end}}
 			{{end}}
 		{{end}}
 	} 

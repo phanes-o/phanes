@@ -2,6 +2,7 @@ package generate
 
 import (
 	"fmt"
+	"strings"
 )
 
 type PathName string
@@ -11,6 +12,7 @@ const (
 	ModelName                   = "model"
 	CacheName                   = "cache"
 	EntityName                  = "entity"
+	MappingName                 = "mapping"
 	HttpApiName                 = "http_api"
 	GrpcApiName                 = "grpc_api"
 	StoreMysqlName              = "store_mysql"
@@ -21,27 +23,43 @@ const (
 type GenType string
 
 const (
-	GenTypeBll           = "bll"
-	GenTypeModel         = "model"
-	GenTypeEntity        = "entity"
-	GenTypeHttpApi       = "api.http"
-	GenTypeGrpcApi       = "api.grpc"
-	GenTypeApiAll        = "api.all"
-	GenTypeStoreMysql    = "store.mysql"
-	GenTypeStorePostgres = "store.postgres"
-	GenTypeStoreAll      = "store.all"
+	GenTypeBll           GenType = "bll"
+	GenTypeModel                 = "model"
+	GenTypeEntity                = "entity"
+	GenTypeHttpApi               = "api.http"
+	GenTypeGrpcApi               = "api.grpc"
+	GenTypeApiAll                = "api.all"
+	GenTypeStoreMysql            = "store.mysql"
+	GenTypeStorePostgres         = "store.postgres"
 )
 
 type Destinations struct {
-	Bll            string `yaml:"bll"`
-	Model          string `yaml:"model"`
-	Cache          string `yaml:"cache"`
-	Entity         string `yaml:"entity"`
-	HttpApi        string `yaml:"http_api"`
-	GrpcApi        string `yaml:"grpc_api"`
-	StoreMysql     string `yaml:"store_mysql"`
-	StorePostgres  string `yaml:"store_postgres"`
-	StoreInterface string `yaml:"store_interface"`
+	Bll            string
+	Model          string
+	Cache          string
+	Entity         string
+	Mapping        string
+	HttpApi        string
+	GrpcApi        string
+	StoreMysql     string
+	StorePostgres  string
+	StoreInterface string
+}
+
+func destinations(project string, pwd string) map[PathName]string {
+	var template = "%s/%s/%s"
+	return map[PathName]string{
+		BllName:            fmt.Sprintf(template, pwd, project, "bll"),
+		ModelName:          fmt.Sprintf(template, pwd, project, "model"),
+		CacheName:          fmt.Sprintf(template, pwd, project, "store/redis"),
+		EntityName:         fmt.Sprintf(template, pwd, project, "model/entity"),
+		MappingName:        fmt.Sprintf(template, pwd, project, "model/mapping"),
+		HttpApiName:        fmt.Sprintf(template, pwd, project, "server/grpc/v1"),
+		GrpcApiName:        fmt.Sprintf(template, pwd, project, "server/web/v1"),
+		StoreMysqlName:     fmt.Sprintf(template, pwd, project, "store/mysql"),
+		StorePostgresName:  fmt.Sprintf(template, pwd, project, "store/postgres"),
+		StoreInterfaceName: fmt.Sprintf(template, pwd, project, "store"),
+	}
 }
 
 func DefaultDestinations(project string, pwd string) *Destinations {
@@ -51,6 +69,7 @@ func DefaultDestinations(project string, pwd string) *Destinations {
 		Model:          fmt.Sprintf(template, pwd, project, "model"),
 		Cache:          fmt.Sprintf(template, pwd, project, "store/redis"),
 		Entity:         fmt.Sprintf(template, pwd, project, "model/entity"),
+		Mapping:        fmt.Sprintf(template, pwd, project, "model/mapping"),
 		HttpApi:        fmt.Sprintf(template, pwd, project, "server/grpc/v1"),
 		GrpcApi:        fmt.Sprintf(template, pwd, project, "setver/web/v1"),
 		StoreMysql:     fmt.Sprintf(template, pwd, project, "store/mysql"),
@@ -59,47 +78,29 @@ func DefaultDestinations(project string, pwd string) *Destinations {
 	}
 }
 
-// todo: path merge
-func resolvePaths(path map[PathName]string, destinations *Destinations) map[PathName]string {
-	if _, ok := path[BllName]; !ok {
-		path[BllName] = destinations.Bll
-	}
+// /server/web/v1/user/user.go
+func resolvePaths(project, pwd string, structName StructName, paths map[PathName]string, destinations map[PathName]string) map[PathName]string {
+	var (
+		ok       bool
+		fileName string
+	)
 
-	if _, ok := path[ModelName]; !ok {
-		path[ModelName] = destinations.Model
-	}
+	for name, addr := range destinations {
+		if fileName, ok = paths[name]; !ok {
+			fileName = addr
+		}
+		prefix := fmt.Sprintf("%s/%s", pwd, project)
+		if !strings.Contains(fileName, prefix) {
+			fileName = prefix + strings.TrimLeft(fileName, ".")
+		}
 
-	if _, ok := path[CacheName]; !ok {
-		path[CacheName] = destinations.Cache
-	}
+		fileName = strings.TrimRight(fileName, "/")
 
-	if _, ok := path[CacheName]; !ok {
-		path[CacheName] = destinations.Cache
+		suffix := fmt.Sprintf("%s%s", Camel2Case(string(structName)), ".go")
+		if !strings.Contains(fileName, suffix) {
+			fileName += "/" + suffix
+		}
+		paths[name] = fileName
 	}
-
-	if _, ok := path[EntityName]; !ok {
-		path[EntityName] = destinations.Entity
-	}
-
-	if _, ok := path[HttpApiName]; !ok {
-		path[HttpApiName] = destinations.HttpApi
-	}
-
-	if _, ok := path[GrpcApiName]; !ok {
-		path[GrpcApiName] = destinations.GrpcApi
-	}
-
-	if _, ok := path[StoreMysqlName]; !ok {
-		path[StoreMysqlName] = destinations.HttpApi
-	}
-
-	if _, ok := path[StorePostgresName]; !ok {
-		path[StorePostgresName] = destinations.StorePostgres
-	}
-
-	if _, ok := path[StoreInterfaceName]; !ok {
-		path[StoreInterfaceName] = destinations.StoreInterface
-	}
-
-	return path
+	return paths
 }

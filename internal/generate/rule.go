@@ -3,6 +3,7 @@ package generate
 import "strings"
 
 const (
+	Parameter       = "parameter"
 	Required        = "required"
 	AutoGenGormTag  = "autogengormtag"
 	EnableValidator = "enablevalidator"
@@ -17,6 +18,7 @@ const (
 // Rule is field tag. Example: `rule:"Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 // Except rule tag any others tag will be as fields tag. for example: you use http parameter validator
 type Rule struct {
+	Parameter bool
 	// Required: represent this field is required parameter
 	Required bool
 
@@ -51,6 +53,10 @@ func ParseRule(rules Value) *Rule {
 				if strings.ToLower(split[0]) == NameStyle && (style == SnakeCase || style == CamelCase) {
 					rule.NameStyle = style
 				}
+			}
+
+			if strings.ToLower(r) == Parameter {
+				rule.Parameter = true
 			}
 
 			if strings.ToLower(r) == Required {

@@ -16,18 +16,18 @@ import (
 	"{{.ProjectName}}/utils"
 )
 
-var {{.TitleName}} = &{{.Name}}{}
+var {{.StructName}} = &{{.CamelName}}{}
 
 func init() {
-	RegisterRouter({{.TitleName}})
+	RegisterRouter({{.StructName}})
 }
 
 
-type {{.Name}} struct {}
+type {{.CamelName}} struct {}
 
 // Init 
-func (a *{{.Name}}) Init (r *gin.RouterGroup) {
-	g := r.Group("/{{.Name}}",  middleware.Auth())
+func (a *{{.CamelName}}) Init (r *gin.RouterGroup) {
+	g := r.Group("/{{.CamelName}}",  middleware.Auth())
 	{
 		g.POST("/create", a.create)
 		g.POST("/update", a.update)
@@ -38,9 +38,9 @@ func (a *{{.Name}}) Init (r *gin.RouterGroup) {
 }
 
 // create 
-func (a *{{.Name}}) create(c *gin.Context) {
+func (a *{{.CamelName}}) create(c *gin.Context) {
 	var (
-		in  = &model.{{.TitleName}}CreateRequest{}
+		in  = &model.{{.StructName}}CreateRequest{}
 		err error
 	)
 
@@ -49,7 +49,7 @@ func (a *{{.Name}}) create(c *gin.Context) {
 		return
 	}
 
-	if err = bll.{{.TitleName}}.Create(c.Request.Context(), in); err != nil {
+	if err = bll.{{.StructName}}.Create(c.Request.Context(), in); err != nil {
 		c.Error(err)
 		return
 	}
@@ -57,9 +57,9 @@ func (a *{{.Name}}) create(c *gin.Context) {
 }
 
 // update 
-func (a *{{.Name}}) update(c *gin.Context) {
+func (a *{{.CamelName}}) update(c *gin.Context) {
 	var (
-		in  = &model.{{.TitleName}}UpdateRequest{}
+		in  = &model.{{.StructName}}UpdateRequest{}
 		err error
 	)
 
@@ -68,7 +68,7 @@ func (a *{{.Name}}) update(c *gin.Context) {
 		return
 	}
 
-	if err = bll.{{.TitleName}}.Update(c.Request.Context(), in); err != nil {
+	if err = bll.{{.StructName}}.Update(c.Request.Context(), in); err != nil {
 		c.Error(err)
 		return
 	}
@@ -76,10 +76,10 @@ func (a *{{.Name}}) update(c *gin.Context) {
 }
 
 // list 
-func (a *{{.Name}}) list(c *gin.Context) {
+func (a *{{.CamelName}}) list(c *gin.Context) {
 	var (
-		in  = &model.{{.TitleName}}ListRequest{}
-		out  = &model.{{.TitleName}}ListResponse{}
+		in  = &model.{{.StructName}}ListRequest{}
+		out  = &model.{{.StructName}}ListResponse{}
 		err error
 	)
 
@@ -88,7 +88,7 @@ func (a *{{.Name}}) list(c *gin.Context) {
 		return
 	}
 
-	if out, err = bll.{{.TitleName}}.List(c.Request.Context(), in); err != nil {
+	if out, err = bll.{{.StructName}}.List(c.Request.Context(), in); err != nil {
 		c.Error(err)
 		return
 	}
@@ -96,10 +96,10 @@ func (a *{{.Name}}) list(c *gin.Context) {
 }
 
 // list 
-func (a *{{.Name}}) find(c *gin.Context) {
+func (a *{{.CamelName}}) find(c *gin.Context) {
 	var (
-		in  = &model.{{.TitleName}}InfoRequest{}
-		out  = &model.{{.TitleName}}Info{}
+		in  = &model.{{.StructName}}InfoRequest{}
+		out  = &model.{{.StructName}}Info{}
 		err error
 	)
 
@@ -108,7 +108,7 @@ func (a *{{.Name}}) find(c *gin.Context) {
 		return
 	}
 
-	if out, err = bll.{{.TitleName}}.Find(c.Request.Context(), in); err != nil {
+	if out, err = bll.{{.StructName}}.Find(c.Request.Context(), in); err != nil {
 		c.Error(err)
 		return
 	}
@@ -116,9 +116,9 @@ func (a *{{.Name}}) find(c *gin.Context) {
 }
 
 // delete 
-func (a *{{.Name}}) delete(c *gin.Context) {
+func (a *{{.CamelName}}) delete(c *gin.Context) {
 	var (
-		in  = &model.{{.TitleName}}DeleteRequest{}
+		in  = &model.{{.StructName}}DeleteRequest{}
 		err error
 	)
 
@@ -127,7 +127,7 @@ func (a *{{.Name}}) delete(c *gin.Context) {
 		return
 	}
 
-	if  err = bll.{{.TitleName}}.Delete(c.Request.Context(), in); err != nil {
+	if  err = bll.{{.StructName}}.Delete(c.Request.Context(), in); err != nil {
 		c.Error(err)
 		return
 	}

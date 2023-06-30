@@ -63,12 +63,11 @@ func ReadSource(filename string) (*Generator, error) {
 				templateField[structName] = tmpl
 
 				result := &Result{
-					Path:  resolvePaths(currentPath, DefaultDestinations(project, pwd)),
+					Path:  resolvePaths(project, pwd, currentStruct, currentPath, destinations(project, pwd)),
 					Codes: codeBuild(currentGenType, node, tmpl),
 				}
 				genTypes[structName] = currentGenType
 				results[structName] = result
-
 			}
 		case *ast.ImportSpec:
 			imports = append(imports, node.Path.Value)
@@ -104,22 +103,13 @@ func processFieldType(fieldType ast.Expr) string {
 	var res string
 	switch fieldType := fieldType.(type) {
 	case *ast.Ident:
-		//fmt.Println("Identifier Type:", fieldType.Name)
-		// 处理标识符类型节点的详细信息
 		res = fieldType.String()
 	case *ast.StarExpr:
-		// 处理指针类型节点的详细信息
-		// 可以访问 fieldType.X 等字段
 		res = fmt.Sprintf("%s%s", "*", processFieldType(fieldType.X))
 	case *ast.ArrayType:
-		// 处理数组类型节点的详细信息
-		// 可以访问 fieldType.Len 和 fieldType.Elt 等字段
 		fmt.Fprintf(os.Stderr, "\033[31mERROR: Unsupport Array Field Type\033[m\n")
 		os.Exit(1)
 	case *ast.MapType:
-		// 处理映射类型节点的详细信息
-		// 可以访问 fieldType.Key 和 fieldType.Value 等字段
-		// 处理其他类型节点，如结构体类型、接口类型等
 		fmt.Fprintf(os.Stderr, "\033[31mERROR: Unsupport Map Field Type\033[m\n")
 		os.Exit(1)
 	case *ast.StructType:

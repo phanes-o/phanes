@@ -7,6 +7,16 @@ import (
 	"unicode"
 )
 
+func camelCase(name string) string {
+	if len(name) == 0 {
+		return name
+	}
+
+	r := []rune(name)
+	r[0] = unicode.ToLower(r[0])
+	return string(r)
+}
+
 func Camel2Case(name string) string {
 	buffer := NewBuffer()
 	for i, r := range name {
