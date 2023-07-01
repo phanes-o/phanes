@@ -14,7 +14,7 @@ const (
 	UpdateRequest = "UpdateRequest"
 	DeleteRequest = "DeleteRequest"
 	InfoRequest   = "InfoRequest"
-	InfoResponse  = "InfoResponse"
+	Info          = "Info"
 	ListRequest   = "ListRequest"
 	ListResponse  = "ListResponse"
 )
@@ -124,7 +124,7 @@ func buildEntityStruct(n ast.Node, tmpl *TemplateField) ast.Decl {
 		},
 	}
 	return &ast.GenDecl{
-		Tok:   token.STRUCT,
+		Tok:   token.TYPE,
 		Specs: []ast.Spec{typeSpec},
 	}
 }
@@ -212,7 +212,7 @@ func buildDeleteRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	}
 
 	return &ast.GenDecl{
-		Tok:   token.STRUCT,
+		Tok:   token.TYPE,
 		Specs: []ast.Spec{typeSpec},
 	}
 }
@@ -237,7 +237,7 @@ func buildInfoRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	}
 
 	return &ast.GenDecl{
-		Tok:   token.STRUCT,
+		Tok:   token.TYPE,
 		Specs: []ast.Spec{typeSpec},
 	}
 }
@@ -257,13 +257,13 @@ func buildInfoResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	}
 
 	typeSpec := &ast.TypeSpec{
-		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, InfoResponse)),
+		Name: ast.NewIdent(fmt.Sprintf("%s%s", tmpl.StructName, Info)),
 		Type: &ast.StructType{
 			Fields: &ast.FieldList{List: fields},
 		},
 	}
 	return &ast.GenDecl{
-		Tok:   token.STRUCT,
+		Tok:   token.TYPE,
 		Specs: []ast.Spec{typeSpec},
 	}
 }
@@ -294,7 +294,7 @@ func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 		},
 	}
 	return &ast.GenDecl{
-		Tok:   token.STRUCT,
+		Tok:   token.TYPE,
 		Specs: []ast.Spec{typeSpec},
 	}
 }
@@ -313,7 +313,7 @@ func buildListResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 			list := &ast.Field{
 				Names: []*ast.Ident{ast.NewIdent("List")},
 				Type: &ast.ArrayType{
-					Elt: ast.NewIdent(node.Name.Name),
+					Elt: ast.NewIdent(node.Name.Name + Info),
 				},
 				Tag: buildTag("List", ModelName, tmpl.Fields),
 			}
@@ -328,7 +328,7 @@ func buildListResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 		},
 	}
 	return &ast.GenDecl{
-		Tok:   token.STRUCT,
+		Tok:   token.TYPE,
 		Specs: []ast.Spec{typeSpec},
 	}
 }
@@ -359,7 +359,7 @@ func buildUpdateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 		},
 	}
 	return &ast.GenDecl{
-		Tok:   token.STRUCT,
+		Tok:   token.TYPE,
 		Specs: []ast.Spec{typeSpec},
 	}
 }
@@ -390,7 +390,7 @@ func buildCreateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 		},
 	}
 	return &ast.GenDecl{
-		Tok:   token.STRUCT,
+		Tok:   token.TYPE,
 		Specs: []ast.Spec{typeSpec},
 	}
 }
