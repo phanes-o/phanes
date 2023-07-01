@@ -16,9 +16,7 @@ var Cmd = &cobra.Command{
 }
 
 var (
-	api            string
 	configName     string
-	database       string
 	workspace      bool
 	importExistMap = map[string]struct{}{}
 )
