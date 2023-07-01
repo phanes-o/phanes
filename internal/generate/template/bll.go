@@ -54,8 +54,6 @@ func (a *{{.CamelName}}) init()     func()   {
 	return func() {}
 }
 
-func (a *{{.CamelName}}) onEvent(*event.Data) {}
-
 // Create
 func (a *{{.CamelName}}) Create(ctx context.Context, in *model.{{.StructName}}CreateRequest) error  {
 	var (

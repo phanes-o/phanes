@@ -249,6 +249,9 @@ func buildInfoResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
+				if t := processFieldType(f.Type); t == "*time.Time" || t == "time.Time" {
+					f.Type = ast.NewIdent("int64")
+				}
 				fieldName := f.Names[0].Name
 				fields = append(fields, f)
 				f.Tag = buildTag(fieldName, ModelName, tmpl.Fields)
@@ -271,6 +274,8 @@ func buildInfoResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	var fields = make([]*ast.Field, 0)
 
+	tmpl.Fields = append(tmpl.Fields, &Field{Name: "Index", Type: "int64", Tags: make([]*Tag, 0), Rule: &Rule{}})
+	tmpl.Fields = append(tmpl.Fields, &Field{Name: "Size", Type: "int64", Tags: make([]*Tag, 0), Rule: &Rule{}})
 	switch node := n.(type) {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
@@ -284,6 +289,17 @@ func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 					fields = append(fields, field)
 				}
 			}
+			indexFiled := &ast.Field{
+				Names: []*ast.Ident{ast.NewIdent("Index")},
+				Type:  ast.NewIdent("int64"),
+				Tag:   buildTag("Index", ModelName, tmpl.Fields),
+			}
+			sizeFiled := &ast.Field{
+				Names: []*ast.Ident{ast.NewIdent("Size")},
+				Type:  ast.NewIdent("int64"),
+				Tag:   buildTag("Size", ModelName, tmpl.Fields),
+			}
+			fields = append(fields, indexFiled, sizeFiled)
 		}
 	}
 

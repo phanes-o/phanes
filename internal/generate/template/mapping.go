@@ -17,8 +17,8 @@ import (
 
 
 // {{.StructName}}sEntityToDto entity data transfer
-func {{.StructName}}sEntityToDto({{.CamelName}}s []*entity.{{.StructName}}) []*{{.StructName}}Info {
-	out := make([]*{{.StructName}}Info, 0, len({{.CamelName}}s))
+func {{.StructName}}sEntityToDto({{.CamelName}}s []*entity.{{.StructName}}) []*model.{{.StructName}}Info {
+	out := make([]*model.{{.StructName}}Info, 0, len({{.CamelName}}s))
 	for _, c := range {{.CamelName}}s  {
 		out = append(out, {{.StructName}}EntityToDto(c))
 	}
@@ -26,8 +26,8 @@ func {{.StructName}}sEntityToDto({{.CamelName}}s []*entity.{{.StructName}}) []*{
 }
 
 // {{.StructName}}EntityToDto entity data transfer
-func {{.StructName}}EntityToDto(e *entity.{{.StructName}}) *{{.StructName}}Info {
-	return &{{.StructName}}Info{
+func {{.StructName}}EntityToDto(e *entity.{{.StructName}}) *model.{{.StructName}}Info {
+	return &model.{{.StructName}}Info{
 		{{range $v :=.Fields}}
 			{{.Name}}: {{if eq .Type $time}}e.{{.Name}}.Unix(),{{else}}e.{{.Name}},{{end}}
 		{{end}}
