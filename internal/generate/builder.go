@@ -63,7 +63,7 @@ func buildEntityCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 	)
 
 	decls := []ast.Decl{
-		buildImport(tmpl),
+		buildImport(tmpl, false),
 		buildEntityStruct(n, tmpl),
 		buildEntityMethod(n),
 	}
@@ -85,7 +85,7 @@ func buildModelCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 		packageName = "model"
 	)
 	decls := []ast.Decl{
-		buildImport(tmpl),
+		buildImport(tmpl, true),
 		buildCreateRequest(n, tmpl),
 		buildUpdateRequest(n, tmpl),
 		buildListRequest(n, tmpl),
@@ -134,7 +134,7 @@ func buildEntityMethod(n ast.Node) ast.Decl {
 	case *ast.TypeSpec:
 		name := node.Name
 		method := &ast.FuncDecl{
-			Name: ast.NewIdent("String"),
+			Name: ast.NewIdent("TableName"),
 			Recv: &ast.FieldList{
 				List: []*ast.Field{
 					{
@@ -174,10 +174,13 @@ func buildEntityMethod(n ast.Node) ast.Decl {
 	return nil
 }
 
-func buildImport(tmpl *TemplateField) ast.Decl {
+func buildImport(tmpl *TemplateField, isModel bool) ast.Decl {
 	specs := make([]ast.Spec, 0, len(tmpl.Imports))
 
 	for _, i := range tmpl.Imports {
+		if isModel && i == "\"time\"" {
+			continue
+		}
 		spec := &ast.ImportSpec{
 			Path: &ast.BasicLit{
 				Kind:  token.STRING,

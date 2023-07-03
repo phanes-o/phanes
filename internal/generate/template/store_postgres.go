@@ -22,6 +22,27 @@ var {{.StructName}} = &{{.CamelName}}{}
 
 type {{.CamelName}} struct{}
 
+func init() {
+	Register({{.StructName}})
+}
+
+
+func (a *{{.CamelName}}) Init() {
+	if config.Conf.AutoMigrate {
+		p := &entity.{{.StructName}}{}
+		if db.Migrator().HasTable(p) {
+			log.Debug("table already exist: ", zap.String("table", p.TableName()))
+			return
+		}
+		if err := db.AutoMigrate(p); err != nil {
+			log.Error("filed to create table please check config or manually create", zap.String("table", p.TableName()), zap.String("err", err.Error()))
+		} else {
+			log.Info("create table successfully", zap.String("table", p.TableName()))
+		}
+	}
+}
+
+
 // Create 
 func (a *{{.CamelName}}) Create(ctx context.Context, m *entity.{{.StructName}}) (int64, error) {
 	err := GetDB(ctx).Create(m).Error

@@ -32,7 +32,6 @@ package bll
 import (
 	"context"
 	
-	"{{.ProjectName}}/event"
 	"{{.ProjectName}}/model"
 	"{{.ProjectName}}/model/entity"
 	"{{.ProjectName}}/model/mapping"

@@ -15,15 +15,27 @@ type Tag struct {
 }
 
 const (
-	Column        = "column"
 	Type          = "type"
-	Size          = "size"
-	PrimaryKey    = "primaryKey"
+	PrimaryKey    = "primary_key"
 	Unique        = "unique"
-	NotNull       = "NotNull"
-	Index         = "index"
-	AutoIncrement = "autoIncrement"
+	UniqueIndex   = "unique_index"
+	NotNull       = "not null"
+	AutoIncrement = "AUTO_INCREMENT"
 )
+
+func NewTypeVarchar(size int64) Value {
+	return Value(fmt.Sprintf("type:varchar(%d)", size))
+}
+
+func NewIndex(name string) Value {
+	return Value(fmt.Sprintf("index:%s", name))
+}
+func NewSize(size int64) Value {
+	return Value(fmt.Sprintf("size:%d", size))
+}
+func NewColumn(name string) Value {
+	return Value(fmt.Sprintf("column:%s", name))
+}
 
 type Value string
 
@@ -181,35 +193,35 @@ func buildJsonSnakeCodeTag(fieldName string) *Tag {
 
 func buildEntityTag(f *Field) *Tag {
 	var (
-		gormTag *Tag
+		gormTag = NewTag("gorm").AddValue(NewColumn(f.SnakeName))
 	)
 	if f.Name == "Id" || f.Name == "ID" {
-		gormTag = NewTag("gorm").AddValue(PrimaryKey).AddValue(Unique).AddValue(AutoIncrement).AddValue(Value(fmt.Sprintf("%s:%s", Type, "BIGINT")))
+		gormTag.AddValue(PrimaryKey).AddValue(Unique).AddValue(AutoIncrement).AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint")))
 	}
 
 	switch f.Type {
 	case "string":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "VERCHAR(255)"))).AddValue(NotNull)
+		gormTag.AddValue(NewTypeVarchar(255)).AddValue(NotNull)
 	case "int":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "INT"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "integer"))).AddValue(NotNull)
 	case "int32":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "BIGINT"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint"))).AddValue(NotNull)
 	case "int64":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "BIGINT"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint"))).AddValue(NotNull)
 	case "pq.StringArray":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]VERCHAR"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]varchar"))).AddValue(NotNull)
 	case "pq.Float32Array":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]FLOAT"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]float4"))).AddValue(NotNull)
 	case "pq.Float64Array":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]FLOAT"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]float8"))).AddValue(NotNull)
 	case "pq.Int32Array":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]INT"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]bigint"))).AddValue(NotNull)
 	case "pq.Int64Array":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]BIGINT"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]bigint"))).AddValue(NotNull)
 	case "time.Time":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "TIMESTEMP"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "timestamp with time zone"))).AddValue(NotNull)
 	case "*time.Time":
-		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "TIMESTEMP"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "timestamp with time zone"))).AddValue(NotNull)
 	default:
 		fmt.Fprintf(os.Stderr, "\033[31mWRAN: Unknown field type \033[m\n")
 		return &Tag{}

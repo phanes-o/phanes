@@ -18,7 +18,7 @@ import (
 //project:hello
 //generate:bll;store.postgres;api.http;api.grpc;entity;model
 type Person struct {
-	Id        int64          `json:"id" rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator" gorm:"primaryKey;unique;type:BIGINT;autoIncrement;NotNull"`
+	Id        int64          `json:"id" rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	Name      string         `json:"name" rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	Arm       string         `json:"name" rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	Age       int            `rule:"AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
