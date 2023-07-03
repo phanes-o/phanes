@@ -16,12 +16,12 @@ import (
 // Except rule tag any others tag will be as fields tag. for example: you use http parameter validator
 
 //project:hello
-//generate:bll;store.mysql;store.postgres;api.http;api.grpc;entity;model
+//generate:bll;store.postgres;api.http;api.grpc;entity;model
 type User struct {
 	Id        int64          `json:"id" rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator" gorm:"primaryKey;unique;type:BIGINT;autoIncrement;NotNull"`
 	Name      string         `json:"name" rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	Age       int            `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	Phones    pq.StringArray `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	CreatedAt time.Time      `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	UpdatedAt time.Time      `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	CreatedAt *time.Time     `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	UpdatedAt *time.Time     `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 }
