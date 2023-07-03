@@ -18,8 +18,10 @@ const (
 // Rule is field tag. Example: `rule:"Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 // Except rule tag any others tag will be as fields tag. for example: you use http parameter validator
 type Rule struct {
+	// Parameter: represent this field is a parameter
 	Parameter bool
-	// Required: represent this field is required parameter
+
+	// Required only Parameter is true valid
 	Required bool
 
 	// AutoGenGormTag: generator will auto codeBuild gorm's tag.

@@ -330,7 +330,7 @@ func buildListResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 			list := &ast.Field{
 				Names: []*ast.Ident{ast.NewIdent("List")},
 				Type: &ast.ArrayType{
-					Elt: ast.NewIdent(node.Name.Name + Info),
+					Elt: ast.NewIdent("*" + node.Name.Name + Info),
 				},
 				Tag: buildTag("List", ModelName, tmpl.Fields),
 			}

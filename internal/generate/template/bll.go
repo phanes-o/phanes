@@ -9,17 +9,22 @@ var bll = `
 {{$empty := ""}}
 {{$nil := "nil"}}
 {{$true := true}}
-{{$or := "||"}}
 {{$ID := "Id"}}
-{{$CreatedAt := "created_at"}}
-{{$UpdatedAt := "updated_at"}}
-{{$UserId := "user_id"}}
 
+{{$time := "time.Time"}}
+{{$starTime := "*time.Time"}}
 {{$string := "string"}}
 {{$int64 := "int64"}}
 {{$int32 := "int32"}}
 {{$int := "int"}}
 
+{{$pqStringArray := "pq.StringArray"}}
+{{$pqFloat32Array := "pq.Float32Array"}}
+{{$pqFloat64Array := "pq.Float64Array"}}
+{{$pqInt32Array := "pq.Int32Array"}}
+{{$pqInt64Array := "pq.Int64Array"}}
+
+{{$required := "Required"}}
 {{$projectName := .ProjectName}}
 
 package bll 
@@ -127,14 +132,32 @@ func (a *{{.CamelName}}) Find(ctx context.Context, in *model.{{.StructName}}Info
 // build{{.StructName}} build entity
 func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.StructName}} {
 	// todo: check the entity is required
+	now := time.Now()
 	return &entity.{{.StructName}}{
 		{{range $v :=.Fields}}
-			{{if eq .SnakeName $CreatedAt}}
-				{{.Name}}:time.Now().Unix(),
-			{{else if eq .SnakeName $UpdatedAt}}
-				{{.Name}}:time.Now().Unix(),
+			{{if eq .Type $time}}
+				{{.Name}}: now,
+			{{else if eq .Type $starTime}}
+				{{.Name}}: &now,
 			{{else}}
-				{{if ne .Name $ID}}{{.Name}}: {{if eq .Rule.Parameter $true}} {{if ne .Rule.Required $true}}in.{{.Name}},{{else}}in.{{.Name}},{{end}}{{else}}{{if eq .Type $string}}"",{{else}}0,{{end}}{{end}}{{end}}
+				{{if ne .Name $ID}}{{.Name}}: {{if eq .Rule.Parameter $true}} {{if ne .Rule.Required $true}}*in.{{.Name}},{{else}}in.{{.Name}},{{end}}{{else}}
+					{{if eq .Type $string}}
+						"",
+					{{else if eq .Type $pqStringArray}}
+						pq.StringArray{},
+					{{else if eq .Type $pqFloat32Array}}
+						pq.Float32Array{},
+					{{else if eq .Type $pqFloat64Array}}
+						pq.Float32Array{},
+					{{else if eq .Type $pqInt32Array}}
+						pq.Int32Array{},
+					{{else if eq .Type $pqInt32Array}}
+						pq.Int64Array{},
+					{{else}}
+						0,
+					{{end}}
+				{{end}}
+				{{end}}
 			{{end}}
 		{{end}}
 	} 

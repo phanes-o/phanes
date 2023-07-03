@@ -108,7 +108,7 @@ func (a *{{.CamelName}}) List(ctx context.Context,in *model.{{.StructName}}ListR
 // ExecTransaction execute database transaction
 func (a *{{.CamelName}}) ExecTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
 	return GetDB(ctx).Transaction(func(tx *gorm.DB) error {
-		ctx = context.WithValue(ctx, ContextTxKey{}, tx)
+		ctx = context.WithValue(ctx, ContextTxKey, tx)
 		return callback(ctx)
 	})
 }

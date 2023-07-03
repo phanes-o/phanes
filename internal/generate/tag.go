@@ -202,9 +202,9 @@ func buildEntityTag(f *Field) *Tag {
 		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]FLOAT"))).AddValue(NotNull)
 	case "pq.Float64Array":
 		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]FLOAT"))).AddValue(NotNull)
-	case "pq.int32Array":
+	case "pq.Int32Array":
 		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]INT"))).AddValue(NotNull)
-	case "pq.int64Array":
+	case "pq.Int64Array":
 		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]BIGINT"))).AddValue(NotNull)
 	case "time.Time":
 		gormTag = NewTag("gorm").AddValue(Value(fmt.Sprintf("%s:%s", Type, "TIMESTEMP"))).AddValue(NotNull)

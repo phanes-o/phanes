@@ -17,11 +17,12 @@ import (
 
 //project:hello
 //generate:bll;store.postgres;api.http;api.grpc;entity;model
-type User struct {
+type Person struct {
 	Id        int64          `json:"id" rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator" gorm:"primaryKey;unique;type:BIGINT;autoIncrement;NotNull"`
 	Name      string         `json:"name" rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	Age       int            `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	Phones    pq.StringArray `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	CreatedAt *time.Time     `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	UpdatedAt *time.Time     `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Arm       string         `json:"name" rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Age       int            `rule:"AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Phones    pq.StringArray `rule:"AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	CreatedAt time.Time      `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	UpdatedAt time.Time      `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 }
