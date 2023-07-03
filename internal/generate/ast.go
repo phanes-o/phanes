@@ -62,13 +62,15 @@ func ReadSource(filename string) (*Generator, error) {
 				tmpl.Imports = imports
 				templateField[structName] = tmpl
 
+				if len(currentGenType) == 0 {
+					currentGenType = []GenType{GenTypeBll, GenTypeEntity, GenTypeModel, GenTypeHttpApi, GenTypeStorePostgres}
+				}
 				result := &Result{
 					Path:  resolvePaths(project, pwd, currentStruct, currentPath, destinations(project, pwd)),
 					Codes: codeBuild(currentGenType, node, tmpl),
 				}
 
 				currentPath = make(map[PathName]string)
-				currentGenType = make([]GenType, 0)
 				genTypes[structName] = currentGenType
 				results[structName] = result
 			}
