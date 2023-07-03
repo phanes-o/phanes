@@ -12,7 +12,10 @@ package postgres
 
 import (
 	"context"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
+	log "hello/collector/logger"
+	"hello/config"
 	"{{.ProjectName}}/errors"
 	"{{.ProjectName}}/model"
 	"{{.ProjectName}}/model/entity"

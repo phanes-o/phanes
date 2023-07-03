@@ -196,7 +196,7 @@ func buildEntityTag(f *Field) *Tag {
 		gormTag = NewTag("gorm").AddValue(NewColumn(f.SnakeName))
 	)
 	if f.Name == "Id" || f.Name == "ID" {
-		gormTag.AddValue(PrimaryKey).AddValue(Unique).AddValue(AutoIncrement).AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint")))
+		gormTag.AddValue(PrimaryKey)
 	}
 
 	switch f.Type {
@@ -209,15 +209,15 @@ func buildEntityTag(f *Field) *Tag {
 	case "int64":
 		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint"))).AddValue(NotNull)
 	case "pq.StringArray":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]varchar"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "varchar[]"))).AddValue(NotNull)
 	case "pq.Float32Array":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]float4"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "float4[]"))).AddValue(NotNull)
 	case "pq.Float64Array":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]float8"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "float8[]"))).AddValue(NotNull)
 	case "pq.Int32Array":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]bigint"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint[]"))).AddValue(NotNull)
 	case "pq.Int64Array":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "[]bigint"))).AddValue(NotNull)
+		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint[]"))).AddValue(NotNull)
 	case "time.Time":
 		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "timestamp with time zone"))).AddValue(NotNull)
 	case "*time.Time":
