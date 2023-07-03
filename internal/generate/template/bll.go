@@ -54,6 +54,10 @@ var {{.StructName}} = &{{.CamelName}}{
 	i{{.StructName}}: postgres.{{.StructName}},
 }
 
+func init() {
+	Register({{.StructName}})
+}
+
 func (a *{{.CamelName}}) init()     func()   {
 	return func() {}
 }
