@@ -197,34 +197,35 @@ func buildEntityTag(f *Field) *Tag {
 	)
 	if f.Name == "Id" || f.Name == "ID" {
 		gormTag.AddValue(PrimaryKey)
+	} else {
+		switch f.Type {
+		case "string":
+			gormTag.AddValue(NewTypeVarchar(255)).AddValue(NotNull)
+		case "int":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "integer"))).AddValue(NotNull)
+		case "int32":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint"))).AddValue(NotNull)
+		case "int64":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint"))).AddValue(NotNull)
+		case "pq.StringArray":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "varchar[]"))).AddValue(NotNull)
+		case "pq.Float32Array":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "float4[]"))).AddValue(NotNull)
+		case "pq.Float64Array":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "float8[]"))).AddValue(NotNull)
+		case "pq.Int32Array":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint[]"))).AddValue(NotNull)
+		case "pq.Int64Array":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint[]"))).AddValue(NotNull)
+		case "time.Time":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "timestamp with time zone"))).AddValue(NotNull)
+		case "*time.Time":
+			gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "timestamp with time zone"))).AddValue(NotNull)
+		default:
+			fmt.Fprintf(os.Stderr, "\033[31mWRAN: Unknown field type \033[m\n")
+			return &Tag{}
+		}
 	}
 
-	switch f.Type {
-	case "string":
-		gormTag.AddValue(NewTypeVarchar(255)).AddValue(NotNull)
-	case "int":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "integer"))).AddValue(NotNull)
-	case "int32":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint"))).AddValue(NotNull)
-	case "int64":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint"))).AddValue(NotNull)
-	case "pq.StringArray":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "varchar[]"))).AddValue(NotNull)
-	case "pq.Float32Array":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "float4[]"))).AddValue(NotNull)
-	case "pq.Float64Array":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "float8[]"))).AddValue(NotNull)
-	case "pq.Int32Array":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint[]"))).AddValue(NotNull)
-	case "pq.Int64Array":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "bigint[]"))).AddValue(NotNull)
-	case "time.Time":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "timestamp with time zone"))).AddValue(NotNull)
-	case "*time.Time":
-		gormTag.AddValue(Value(fmt.Sprintf("%s:%s", Type, "timestamp with time zone"))).AddValue(NotNull)
-	default:
-		fmt.Fprintf(os.Stderr, "\033[31mWRAN: Unknown field type \033[m\n")
-		return &Tag{}
-	}
 	return gormTag
 }

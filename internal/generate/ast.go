@@ -66,6 +66,9 @@ func ReadSource(filename string) (*Generator, error) {
 					Path:  resolvePaths(project, pwd, currentStruct, currentPath, destinations(project, pwd)),
 					Codes: codeBuild(currentGenType, node, tmpl),
 				}
+
+				currentPath = make(map[PathName]string)
+				currentGenType = make([]GenType, 0)
 				genTypes[structName] = currentGenType
 				results[structName] = result
 			}
