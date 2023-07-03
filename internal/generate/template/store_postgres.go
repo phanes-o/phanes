@@ -34,31 +34,9 @@ func (a *{{.CamelName}}) Find(ctx context.Context, in *model.{{.StructName}}Info
 
 	q := GetDB(ctx).Model(&entity.{{.StructName}}{})
 
-	if in.Id > 0 {
-		err := q.First(&e, in.Id).Error
-		return e, err
-	}
-
-	count := 0 
-	{{range $v := .Fields}}
-		{{if eq $v.Rule.Parameter $true}}
-			{{if ne $v.Rule.Required $true}}
-			if in.{{.Name}} != nil {
-				{{if eq $string .Type}}
-					q = q.Where("{{.SnakeName}} like ?", in.{{.Name}}) 
-				{{else}}
-					q = q.Where("{{.SnakeName}} = ?", in.{{.Name}}) 
-				{{end}}
-				count++
-			}
-			{{end}}
-		{{end}}
-	{{end}}
-
-	if count == 0 {
+	if in.Id == 0 {
 		return e, errors.New("condition illegal")
 	}
-
 	err := q.First(&e).Error
 	return e, err
 }

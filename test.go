@@ -22,7 +22,7 @@ type Person struct {
 	Name      string         `json:"name" rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	Arm       string         `json:"name" rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	Age       int            `rule:"AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	Phones    pq.StringArray `rule:"AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Phones    pq.StringArray `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	CreatedAt time.Time      `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	UpdatedAt time.Time      `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 }

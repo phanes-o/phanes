@@ -140,7 +140,21 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 			{{else if eq .Type $starTime}}
 				{{.Name}}: &now,
 			{{else}}
-				{{if ne .Name $ID}}{{.Name}}: {{if eq .Rule.Parameter $true}} {{if ne .Rule.Required $true}}*in.{{.Name}},{{else}}in.{{.Name}},{{end}}{{else}}
+				{{if ne .Name $ID}}{{.Name}}: {{if eq .Rule.Parameter $true}} {{if ne .Rule.Required $true}}
+							{{if eq .Type $pqStringArray}}
+								in.{{.Name}},
+							{{else if eq .Type $pqFloat32Array}}
+								in.{{.Name}},
+							{{else if eq .Type $pqFloat64Array}}
+								in.{{.Name}},
+							{{else if eq .Type $pqInt32Array}}
+								in.{{.Name}},
+							{{else if eq .Type $pqInt32Array}}
+								in.{{.Name}},
+							{{else}}
+								*in.{{.Name}},
+							{{end}}
+					{{else}}in.{{.Name}},{{end}}{{else}}
 					{{if eq .Type $string}}
 						"",
 					{{else if eq .Type $pqStringArray}}
@@ -163,3 +177,19 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 	} 
 }
 `
+
+/*
+	{{if eq .Type $pqStringArray}}
+		in.{{.Name}},
+	{{else if eq .Type $pqFloat32Array}}
+		in.{{.Name}},
+	{{else if eq .Type $pqFloat64Array}}
+		in.{{.Name}},
+	{{else if eq .Type $pqInt32Array}}
+		in.{{.Name}},
+	{{else if eq .Type $pqInt32Array}}
+		in.{{.Name}},
+	{{else}}
+		*in.{{.Name}},
+	{{end}}
+*/
