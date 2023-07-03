@@ -278,6 +278,9 @@ func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
+				if t := processFieldType(f.Type); t == "*time.Time" || t == "time.Time" {
+					f.Type = ast.NewIdent("int64")
+				}
 				rule := tmpl.getFieldRule(f.Names[0].Name)
 				if rule.Parameter {
 					field := buildField(f, ModelName, tmpl)
@@ -354,6 +357,9 @@ func buildUpdateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
+				if t := processFieldType(f.Type); t == "*time.Time" || t == "time.Time" {
+					f.Type = ast.NewIdent("int64")
+				}
 				rule := tmpl.getFieldRule(f.Names[0].Name)
 				if rule.Parameter {
 					field := buildField(f, ModelName, tmpl)
@@ -385,6 +391,9 @@ func buildCreateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
+				if t := processFieldType(f.Type); t == "*time.Time" || t == "time.Time" {
+					f.Type = ast.NewIdent("int64")
+				}
 				rule := tmpl.getFieldRule(f.Names[0].Name)
 				if rule.Parameter {
 					field := buildField(f, ModelName, tmpl)
