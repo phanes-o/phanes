@@ -26,11 +26,24 @@ var bll = `
 
 {{$required := "Required"}}
 {{$projectName := .ProjectName}}
-
+{{ $break := false }}
 package bll 
 
 import (
 	"context"
+	{{range $v :=.Fields}}
+		{{if $break}}
+			{{break}}
+		{{end}}
+		{{if eq .Rule.Parameter $true}}
+			{{if ne .Rule.Required $true}}
+				{{if or (eq .Type $pqStringArray) (eq .Type $pqFloat32Array) (eq .Type $pqFloat64Array) (eq .Type $pqInt32Array) (eq .Type $pqInt64Array)}}
+				"github.com/lib/pq"
+				{{ $break = true }}
+				{{end}}
+			{{end}}
+		{{end}}
+	{{end}}
 	
 	"{{.ProjectName}}/model"
 	"{{.ProjectName}}/model/entity"
@@ -38,12 +51,6 @@ import (
 	"{{.ProjectName}}/store"
 	"{{.ProjectName}}/store/postgres"
 	"time"
-
-	{{range $value :=.Fields}}
-		{{if eq $value.SnakeName "user_id" }}
-			"{{$projectName}}/auth"
-		{{end}}
-	{{end}}
 )
 
 type {{.CamelName}} struct{
@@ -134,7 +141,6 @@ func (a *{{.CamelName}}) Find(ctx context.Context, in *model.{{.StructName}}Info
 
 // build{{.StructName}} build entity
 func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.StructName}} {
-	// todo: check the entity is required
 	now := time.Now()
 	ety := &entity.{{.StructName}}{
 		{{range $v :=.Fields}}
@@ -145,19 +151,7 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 			{{else}}
 				{{if ne .Name $ID}}
 					{{if eq .Rule.Parameter $true}} 
-						{{if ne .Rule.Required $true}}
-							{{if eq .Type $pqStringArray}}
-								{{.Name}}: in.{{.Name}},
-							{{else if eq .Type $pqFloat32Array}}
-								{{.Name}}: in.{{.Name}},
-							{{else if eq .Type $pqFloat64Array}}
-								{{.Name}}: in.{{.Name}},
-							{{else if eq .Type $pqInt32Array}}
-								{{.Name}}: in.{{.Name}},
-							{{else if eq .Type $pqInt32Array}}
-								{{.Name}}: in.{{.Name}},
-							{{end}}
-						{{else}}
+						{{if eq .Rule.Required $true}}
 							{{.Name}}: in.{{.Name}},
 						{{end}}
 					{{else}}
@@ -187,6 +181,36 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 				{{if or (eq .Type $string) (eq .Type $int) (eq .Type $int32) (eq .Type $int64)}}
 					if in.{{.Name}} != nil {
 						ety.{{.Name}} = *in.{{.Name}}
+					}
+				{{else if eq .Type $pqStringArray}}
+					if len(in.{{.Name}}) != 0 {
+						ety.{{.Name}} = in.{{.Name}}
+					} else {
+						ety.{{.Name}} = pq.StringArray{}
+					}
+				{{else if eq .Type $pqFloat32Array}}
+					if len(in.{{.Name}}) != 0 {
+						ety.{{.Name}} = *in.{{.Name}}
+					}else {
+						ety.{{.Name}} = pq.Float32Array{}
+					}
+				{{else if eq .Type $pqFloat64Array}}
+					if len(in.{{.Name}}) != 0 {
+						ety.{{.Name}} = *in.{{.Name}}
+					}else {
+						ety.{{.Name}} = pq.Float64Array{}
+					}
+				{{else if eq .Type $pqInt32Array}}
+					if len(in.{{.Name}}) != 0 {
+						ety.{{.Name}} = *in.{{.Name}}
+					}else {
+						ety.{{.Name}} = pq.Int32Array{}
+					}
+				{{else if eq .Type $pqInt64Array}}
+					if len(in.{{.Name}}) != 0 {
+						ety.{{.Name}} = *in.{{.Name}}
+					}else {
+						ety.{{.Name}} = pq.Int64Array{}
 					}
 				{{end}}
 			{{end}}

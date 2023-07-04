@@ -431,7 +431,7 @@ func buildField(f *ast.Field, path PathName, tmpl *TemplateField) *ast.Field {
 }
 
 func rebuildFieldAsStar(f *ast.Field, tmpl *TemplateField) *ast.Field {
-	switch fType := f.Type.(type) {
+	switch f.Type.(type) {
 	case *ast.MapType:
 		return f
 	case *ast.ArrayType:
@@ -439,11 +439,11 @@ func rebuildFieldAsStar(f *ast.Field, tmpl *TemplateField) *ast.Field {
 	case *ast.StarExpr:
 		return f
 	case *ast.SelectorExpr:
-		newType := transType(fmt.Sprintf("%s.%s", fType.X, fType.Sel))
-		if newType == nil {
-			return f
-		}
-		f.Type = newType
+		//newType := transType(fmt.Sprintf("%s.%s", fType.X, fType.Sel))
+		//if newType == nil {
+		//	return f
+		//}
+		//f.Type = newType
 		return f
 	}
 	f.Type = &ast.StarExpr{
