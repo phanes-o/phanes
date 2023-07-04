@@ -274,8 +274,6 @@ func buildInfoResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	var fields = make([]*ast.Field, 0)
 
-	tmpl.Fields = append(tmpl.Fields, &Field{Name: "Index", Type: "int64", Tags: make([]*Tag, 0), Rule: &Rule{}})
-	tmpl.Fields = append(tmpl.Fields, &Field{Name: "Size", Type: "int64", Tags: make([]*Tag, 0), Rule: &Rule{}})
 	switch node := n.(type) {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
@@ -291,12 +289,12 @@ func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 			}
 			indexFiled := &ast.Field{
 				Names: []*ast.Ident{ast.NewIdent("Index")},
-				Type:  ast.NewIdent("int64"),
+				Type:  ast.NewIdent("int"),
 				Tag:   buildTag("Index", ModelName, tmpl.Fields),
 			}
 			sizeFiled := &ast.Field{
 				Names: []*ast.Ident{ast.NewIdent("Size")},
-				Type:  ast.NewIdent("int64"),
+				Type:  ast.NewIdent("int"),
 				Tag:   buildTag("Size", ModelName, tmpl.Fields),
 			}
 			fields = append(fields, indexFiled, sizeFiled)
@@ -323,13 +321,13 @@ func buildListResponse(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 		if _, ok := node.Type.(*ast.StructType); ok {
 			total := &ast.Field{
 				Names: []*ast.Ident{ast.NewIdent("Total")},
-				Type:  ast.NewIdent("int64"),
+				Type:  ast.NewIdent("int"),
 				Tag:   buildTag("Total", ModelName, tmpl.Fields),
 			}
 			list := &ast.Field{
 				Names: []*ast.Ident{ast.NewIdent("List")},
 				Type: &ast.ArrayType{
-					Elt: ast.NewIdent(node.Name.Name + Info),
+					Elt: ast.NewIdent("*" + node.Name.Name + Info),
 				},
 				Tag: buildTag("List", ModelName, tmpl.Fields),
 			}
