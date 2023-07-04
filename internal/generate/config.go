@@ -2,7 +2,11 @@ package generate
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type PathName string
@@ -33,19 +37,6 @@ const (
 	GenTypeStorePostgres         = "store.postgres"
 )
 
-type Destinations struct {
-	Bll            string
-	Model          string
-	Cache          string
-	Entity         string
-	Mapping        string
-	HttpApi        string
-	GrpcApi        string
-	StoreMysql     string
-	StorePostgres  string
-	StoreInterface string
-}
-
 func destinations(project string, pwd string) map[PathName]string {
 	var template = "%s/%s/%s"
 	return map[PathName]string{
@@ -62,44 +53,39 @@ func destinations(project string, pwd string) map[PathName]string {
 	}
 }
 
-func DefaultDestinations(project string, pwd string) *Destinations {
-	var template = "%s/%s/%s"
-	return &Destinations{
-		Bll:            fmt.Sprintf(template, pwd, project, "bll"),
-		Model:          fmt.Sprintf(template, pwd, project, "model"),
-		Cache:          fmt.Sprintf(template, pwd, project, "store/redis"),
-		Entity:         fmt.Sprintf(template, pwd, project, "model/entity"),
-		Mapping:        fmt.Sprintf(template, pwd, project, "model/mapping"),
-		HttpApi:        fmt.Sprintf(template, pwd, project, "server/grpc/v1"),
-		GrpcApi:        fmt.Sprintf(template, pwd, project, "setver/web/v1"),
-		StoreMysql:     fmt.Sprintf(template, pwd, project, "store/mysql"),
-		StorePostgres:  fmt.Sprintf(template, pwd, project, "store/postgres"),
-		StoreInterface: fmt.Sprintf(template, pwd, project, "store"),
-	}
-}
-
 // /server/web/v1/user/user.go
 func resolvePaths(project, pwd string, structName StructName, paths map[PathName]string, destinations map[PathName]string) map[PathName]string {
 	var (
 		ok       bool
 		fileName string
+		suffix   = fmt.Sprintf("%s%s", Camel2Case(string(structName)), ".go")
 	)
 
 	for name, addr := range destinations {
 		if fileName, ok = paths[name]; !ok {
+			// use default destination
 			fileName = addr
-		}
-		prefix := fmt.Sprintf("%s/%s", pwd, project)
-		if !strings.Contains(fileName, prefix) {
-			fileName = prefix + strings.TrimLeft(fileName, ".")
+			fileName = path.Join(fileName, suffix)
+		} else {
+			// user specify destination
+			if !strings.Contains(fileName, project) {
+				fmt.Println(color.RedString("Error: Your path is not your project"))
+				os.Exit(1)
+			}
+			if strings.Contains(fileName, ".") {
+				fileName = strings.TrimLeft(fileName, ".")
+
+				if !strings.Contains(fileName, suffix) {
+					fileName = path.Join(fileName, suffix)
+				}
+				fileName = path.Join(pwd, fileName)
+			} else {
+				if !strings.Contains(fileName, suffix) {
+					fileName = path.Join(fileName, suffix)
+				}
+			}
 		}
 
-		fileName = strings.TrimRight(fileName, "/")
-
-		suffix := fmt.Sprintf("%s%s", Camel2Case(string(structName)), ".go")
-		if !strings.Contains(fileName, suffix) {
-			fileName += "/" + suffix
-		}
 		paths[name] = fileName
 	}
 	return paths

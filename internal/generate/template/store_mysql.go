@@ -12,7 +12,10 @@ package postgres
 
 import (
 	"context"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
+	log "{{.ProjectName}}/collector/logger"
+	"{{.ProjectName}}/config"
 	"{{.ProjectName}}/errors"
 	"{{.ProjectName}}/model"
 	"{{.ProjectName}}/model/entity"
@@ -21,6 +24,27 @@ import (
 var {{.StructName}} = &{{.CamelName}}{}
 
 type {{.CamelName}} struct{}
+
+func init() {
+	Register({{.StructName}})
+}
+
+
+func (a *{{.CamelName}}) Init() {
+	if config.Conf.AutoMigrate {
+		p := &entity.{{.StructName}}{}
+		if db.Migrator().HasTable(p) {
+			log.Debug("table already exist: ", zap.String("table", p.TableName()))
+			return
+		}
+		if err := db.AutoMigrate(p); err != nil {
+			log.Error("filed to create table please check config or manually create", zap.String("table", p.TableName()), zap.String("err", err.Error()))
+		} else {
+			log.Info("create table successfully", zap.String("table", p.TableName()))
+		}
+	}
+}
+
 
 // Create 
 func (a *{{.CamelName}}) Create(ctx context.Context, m *entity.{{.StructName}}) (int64, error) {
@@ -34,31 +58,9 @@ func (a *{{.CamelName}}) Find(ctx context.Context, in *model.{{.StructName}}Info
 
 	q := GetDB(ctx).Model(&entity.{{.StructName}}{})
 
-	if in.Id > 0 {
-		err := q.First(&e, in.Id).Error
-		return e, err
-	}
-
-	count := 0 
-	{{range $v := .Fields}}
-		{{if eq $v.Rule.Parameter $true}}
-			{{if ne $v.Rule.Required $true}}
-			if in.{{.Name}} != nil {
-				{{if eq $string .Type}}
-					q = q.Where("{{.SnakeName}} like ?", in.{{.Name}}) 
-				{{else}}
-					q = q.Where("{{.SnakeName}} = ?", in.{{.Name}}) 
-				{{end}}
-				count++
-			}
-			{{end}}
-		{{end}}
-	{{end}}
-
-	if count == 0 {
+	if in.Id == 0 {
 		return e, errors.New("condition illegal")
 	}
-
 	err := q.First(&e).Error
 	return e, err
 }
@@ -108,7 +110,7 @@ func (a *{{.CamelName}}) List(ctx context.Context,in *model.{{.StructName}}ListR
 // ExecTransaction execute database transaction
 func (a *{{.CamelName}}) ExecTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
 	return GetDB(ctx).Transaction(func(tx *gorm.DB) error {
-		ctx = context.WithValue(ctx, DBCONTEXTKEY, tx)
+		ctx = context.WithValue(ctx, ContextTxKey, tx)
 		return callback(ctx)
 	})
 }

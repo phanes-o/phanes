@@ -14,7 +14,7 @@ import (
 )
 
 // release is the current phanes tool version.
-const release = "v0.1.22"
+const release = "v0.1.35"
 
 var rootCmd = &cobra.Command{
 	Use:     "phanes",

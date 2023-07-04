@@ -63,7 +63,7 @@ func buildEntityCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 	)
 
 	decls := []ast.Decl{
-		buildImport(tmpl),
+		buildImport(tmpl, false),
 		buildEntityStruct(n, tmpl),
 		buildEntityMethod(n),
 	}
@@ -85,7 +85,7 @@ func buildModelCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 		packageName = "model"
 	)
 	decls := []ast.Decl{
-		buildImport(tmpl),
+		buildImport(tmpl, true),
 		buildCreateRequest(n, tmpl),
 		buildUpdateRequest(n, tmpl),
 		buildListRequest(n, tmpl),
@@ -134,7 +134,7 @@ func buildEntityMethod(n ast.Node) ast.Decl {
 	case *ast.TypeSpec:
 		name := node.Name
 		method := &ast.FuncDecl{
-			Name: ast.NewIdent("String"),
+			Name: ast.NewIdent("TableName"),
 			Recv: &ast.FieldList{
 				List: []*ast.Field{
 					{
@@ -174,10 +174,13 @@ func buildEntityMethod(n ast.Node) ast.Decl {
 	return nil
 }
 
-func buildImport(tmpl *TemplateField) ast.Decl {
+func buildImport(tmpl *TemplateField, isModel bool) ast.Decl {
 	specs := make([]ast.Spec, 0, len(tmpl.Imports))
 
 	for _, i := range tmpl.Imports {
+		if isModel && i == "\"time\"" {
+			continue
+		}
 		spec := &ast.ImportSpec{
 			Path: &ast.BasicLit{
 				Kind:  token.STRING,
@@ -278,6 +281,9 @@ func buildListRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
+				if t := processFieldType(f.Type); t == "*time.Time" || t == "time.Time" {
+					f.Type = ast.NewIdent("int64")
+				}
 				rule := tmpl.getFieldRule(f.Names[0].Name)
 				if rule.Parameter {
 					field := buildField(f, ModelName, tmpl)
@@ -354,6 +360,9 @@ func buildUpdateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
+				if t := processFieldType(f.Type); t == "*time.Time" || t == "time.Time" {
+					f.Type = ast.NewIdent("int64")
+				}
 				rule := tmpl.getFieldRule(f.Names[0].Name)
 				if rule.Parameter {
 					field := buildField(f, ModelName, tmpl)
@@ -385,6 +394,9 @@ func buildCreateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 	case *ast.TypeSpec:
 		if s, ok := node.Type.(*ast.StructType); ok {
 			for _, f := range s.Fields.List {
+				if t := processFieldType(f.Type); t == "*time.Time" || t == "time.Time" {
+					f.Type = ast.NewIdent("int64")
+				}
 				rule := tmpl.getFieldRule(f.Names[0].Name)
 				if rule.Parameter {
 					field := buildField(f, ModelName, tmpl)
@@ -419,7 +431,7 @@ func buildField(f *ast.Field, path PathName, tmpl *TemplateField) *ast.Field {
 }
 
 func rebuildFieldAsStar(f *ast.Field, tmpl *TemplateField) *ast.Field {
-	switch fType := f.Type.(type) {
+	switch f.Type.(type) {
 	case *ast.MapType:
 		return f
 	case *ast.ArrayType:
@@ -427,11 +439,11 @@ func rebuildFieldAsStar(f *ast.Field, tmpl *TemplateField) *ast.Field {
 	case *ast.StarExpr:
 		return f
 	case *ast.SelectorExpr:
-		newType := transType(fmt.Sprintf("%s.%s", fType.X, fType.Sel))
-		if newType == nil {
-			return f
-		}
-		f.Type = newType
+		//newType := transType(fmt.Sprintf("%s.%s", fType.X, fType.Sel))
+		//if newType == nil {
+		//	return f
+		//}
+		//f.Type = newType
 		return f
 	}
 	f.Type = &ast.StarExpr{
