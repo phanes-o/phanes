@@ -182,13 +182,15 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 		{{end}}
 	} 
 	{{range $v :=.Fields}}
-	{{if eq .Rule.Parameter $true}}
-	{{if ne .Rule.Required $true}}
-	if in.{{.Name}} != nil {
-		ety.{{.Name}} = *in.{{.Name}}
-	}
-	{{end}}
-	{{end}}
+		{{if eq .Rule.Parameter $true}}
+			{{if ne .Rule.Required $true}}
+				{{if or (eq .Type $string) (eq .Type $int) (eq .Type $int32) (eq .Type $int64)}}
+					if in.{{.Name}} != nil {
+						ety.{{.Name}} = *in.{{.Name}}
+					}
+				{{end}}
+			{{end}}
+		{{end}}
 	{{end}}
 	return ety
 }
