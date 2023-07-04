@@ -2,7 +2,11 @@ package generate
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type PathName string
@@ -54,22 +58,34 @@ func resolvePaths(project, pwd string, structName StructName, paths map[PathName
 	var (
 		ok       bool
 		fileName string
-		prefix   = fmt.Sprintf("%s/%s", pwd, project)
 		suffix   = fmt.Sprintf("%s%s", Camel2Case(string(structName)), ".go")
 	)
 
 	for name, addr := range destinations {
 		if fileName, ok = paths[name]; !ok {
+			// use default destination
 			fileName = addr
-		}
-		if !strings.Contains(fileName, prefix) {
-			fileName = prefix + strings.TrimLeft(fileName, ".")
+			fileName = path.Join(fileName, suffix)
+		} else {
+			// user specify destination
+			if !strings.Contains(fileName, project) {
+				fmt.Println(color.RedString("Error: Your path is not your project"))
+				os.Exit(1)
+			}
+			if strings.Contains(fileName, ".") {
+				fileName = strings.TrimLeft(fileName, ".")
+
+				if !strings.Contains(fileName, suffix) {
+					fileName = path.Join(fileName, suffix)
+				}
+				fileName = path.Join(pwd, fileName)
+			} else {
+				if !strings.Contains(fileName, suffix) {
+					fileName = path.Join(fileName, suffix)
+				}
+			}
 		}
 
-		if !strings.Contains(fileName, suffix) {
-			fileName = strings.TrimRight(fileName, "/")
-			fileName += "/" + suffix
-		}
 		paths[name] = fileName
 	}
 	return paths

@@ -136,63 +136,60 @@ func (a *{{.CamelName}}) Find(ctx context.Context, in *model.{{.StructName}}Info
 func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.StructName}} {
 	// todo: check the entity is required
 	now := time.Now()
-	return &entity.{{.StructName}}{
+	ety := &entity.{{.StructName}}{
 		{{range $v :=.Fields}}
 			{{if eq .Type $time}}
 				{{.Name}}: now,
 			{{else if eq .Type $starTime}}
 				{{.Name}}: &now,
 			{{else}}
-				{{if ne .Name $ID}}{{.Name}}: {{if eq .Rule.Parameter $true}} {{if ne .Rule.Required $true}}
+				{{if ne .Name $ID}}
+					{{if eq .Rule.Parameter $true}} 
+						{{if ne .Rule.Required $true}}
 							{{if eq .Type $pqStringArray}}
-								in.{{.Name}},
+								{{.Name}}: in.{{.Name}},
 							{{else if eq .Type $pqFloat32Array}}
-								in.{{.Name}},
+								{{.Name}}: in.{{.Name}},
 							{{else if eq .Type $pqFloat64Array}}
-								in.{{.Name}},
+								{{.Name}}: in.{{.Name}},
 							{{else if eq .Type $pqInt32Array}}
-								in.{{.Name}},
+								{{.Name}}: in.{{.Name}},
 							{{else if eq .Type $pqInt32Array}}
-								in.{{.Name}},
-							{{else}}
-								*in.{{.Name}},
+								{{.Name}}: in.{{.Name}},
 							{{end}}
-					{{else}}in.{{.Name}},{{end}}{{else}}
-					{{if eq .Type $string}}
-						"",
-					{{else if eq .Type $pqStringArray}}
-						pq.StringArray{},
-					{{else if eq .Type $pqFloat32Array}}
-						pq.Float32Array{},
-					{{else if eq .Type $pqFloat64Array}}
-						pq.Float32Array{},
-					{{else if eq .Type $pqInt32Array}}
-						pq.Int32Array{},
-					{{else if eq .Type $pqInt32Array}}
-						pq.Int64Array{},
+						{{else}}
+							{{.Name}}: in.{{.Name}},
+						{{end}}
 					{{else}}
-						0,
+						{{if eq .Type $string}}
+							{{.Name}}: "",
+						{{else if eq .Type $pqStringArray}}
+							{{.Name}}: pq.StringArray{},
+						{{else if eq .Type $pqFloat32Array}}
+							{{.Name}}: pq.Float32Array{},
+						{{else if eq .Type $pqFloat64Array}}
+							{{.Name}}: pq.Float32Array{},
+						{{else if eq .Type $pqInt32Array}}
+							{{.Name}}: pq.Int32Array{},
+						{{else if eq .Type $pqInt32Array}}
+							{{.Name}}: pq.Int64Array{},
+						{{else}}
+							{{.Name}}: 0,
+						{{end}}
 					{{end}}
-				{{end}}
 				{{end}}
 			{{end}}
 		{{end}}
 	} 
+	{{range $v :=.Fields}}
+	{{if eq .Rule.Parameter $true}}
+	{{if ne .Rule.Required $true}}
+	if in.{{.Name}} != nil {
+		ety.{{.Name}} = *in.{{.Name}}
+	}
+	{{end}}
+	{{end}}
+	{{end}}
+	return ety
 }
 `
-
-/*
-	{{if eq .Type $pqStringArray}}
-		in.{{.Name}},
-	{{else if eq .Type $pqFloat32Array}}
-		in.{{.Name}},
-	{{else if eq .Type $pqFloat64Array}}
-		in.{{.Name}},
-	{{else if eq .Type $pqInt32Array}}
-		in.{{.Name}},
-	{{else if eq .Type $pqInt32Array}}
-		in.{{.Name}},
-	{{else}}
-		*in.{{.Name}},
-	{{end}}
-*/

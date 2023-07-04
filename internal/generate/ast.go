@@ -6,8 +6,10 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	"path"
 	"strings"
 
+	"github.com/fatih/color"
 	"golang.org/x/tools/go/ast/astutil"
 )
 
@@ -18,10 +20,6 @@ const (
 	CmdGenerate GenCmd = "generate"
 	CmdDir      GenCmd = "dir"
 )
-
-type Ast struct {
-	src []byte
-}
 
 func ReadSource(filename string) (*Generator, error) {
 	var (
@@ -40,7 +38,7 @@ func ReadSource(filename string) (*Generator, error) {
 	}
 
 	if pwd, err = os.Getwd(); err != nil {
-		fmt.Fprintf(os.Stderr, "\033[31mERROR: %s \033[m\n", err)
+		fmt.Println(color.RedString(fmt.Sprintf("ERROR: %s", err)))
 		os.Exit(1)
 	}
 
@@ -87,6 +85,11 @@ func ReadSource(filename string) (*Generator, error) {
 			switch GenCmd(split[0]) {
 			case CmdProject:
 				project = split[1]
+				if !checkProjectExist(path.Join(pwd, project)) {
+					fmt.Println(color.RedString(fmt.Sprintf("Project [%s] does not exist", project)), "❌ ")
+					fmt.Println(color.BlueString("Please run [phanes new example] create a project first"))
+					os.Exit(1)
+				}
 			case CmdGenerate:
 				currentGenType = append(genTypes[currentStruct], parseCommentGenType(split[1])...)
 			case CmdDir:
