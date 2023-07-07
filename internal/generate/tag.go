@@ -10,9 +10,17 @@ import (
 )
 
 type Tag struct {
-	Name   string
+	Name   TagType
 	Values []Value
 }
+
+type TagType string
+
+const (
+	JsonTag     TagType = "json"
+	GormTag     TagType = "gorm"
+	ValidateTag TagType = "binding"
+)
 
 const (
 	Type          = "type"
@@ -39,7 +47,7 @@ func NewColumn(name string) Value {
 
 type Value string
 
-func NewTag(name string) *Tag {
+func NewTag(name TagType) *Tag {
 	return &Tag{
 		Name: name,
 	}
@@ -53,12 +61,17 @@ func (tag *Tag) AddValue(v Value) *Tag {
 func (tag *Tag) String() string {
 	buf := bytes.Buffer{}
 	buf.WriteString("`")
-	buf.WriteString(tag.Name)
+	buf.WriteString(string(tag.Name))
 	buf.WriteString(":")
 	buf.WriteString("\"")
 	for i, v := range tag.Values {
 		if i > 0 {
-			buf.WriteString(";")
+			switch tag.Name {
+			case GormTag:
+				buf.WriteString(";")
+			case ValidateTag:
+				buf.WriteString(",")
+			}
 		}
 		buf.WriteString(string(v))
 	}
@@ -69,28 +82,31 @@ func (tag *Tag) String() string {
 
 func mergeTags(name PathName, tags ...*Tag) string {
 	if len(tags) == 1 {
-		if (name == EntityName && strings.Contains(tags[0].Name, "validat")) || (name == ModelName && strings.Contains(tags[0].Name, "orm")) {
+		if (name == EntityName && strings.Contains(string(tags[0].Name), string(ValidateTag))) || (name == ModelName && strings.Contains(string(tags[0].Name), string(GormTag))) {
 			return ""
 		}
 		return tags[0].String()
 	}
 	var exists = make(map[string]struct{})
 	var str string
-	for i, t := range tags {
-		tag := t
-		if _, ok := exists[t.Name]; ok || t.Name == "" {
+	if len(tags) == 1 {
+		return tags[0].String()
+	}
+
+	for _, t := range tags {
+		if _, ok := exists[string(t.Name)]; ok || t.Name == "" {
 			continue
 		}
-		if (name == EntityName && strings.Contains(t.Name, "validat")) || (name == ModelName && strings.Contains(t.Name, "orm")) {
+		if (name == EntityName && strings.Contains(string(t.Name), string(ValidateTag))) || (name == ModelName && strings.Contains(string(t.Name), string(GormTag))) {
 			continue
 		}
 
-		if i == 0 {
-			str = strings.TrimRight(tag.String(), "`")
+		if len(str) == 0 {
+			str = strings.TrimRight(t.String(), "`")
 		} else {
-			str += " " + strings.Trim(tag.String(), "`")
+			str += " " + strings.Trim(t.String(), "`")
 		}
-		exists[t.Name] = struct{}{}
+		exists[string(t.Name)] = struct{}{}
 	}
 	if len(str) > 0 {
 		return str + "`"
@@ -104,7 +120,7 @@ func buildTagsFromTagsText(texts map[string]Value) []*Tag {
 		if k == "rule" {
 			continue
 		}
-		tag := NewTag(k).AddValue(v)
+		tag := NewTag(TagType(k)).AddValue(v)
 		tags = append(tags, tag)
 	}
 	return tags
@@ -144,7 +160,7 @@ func buildTag(name string, path PathName, fields []*Field) *ast.BasicLit {
 				switch path {
 				case EntityName:
 					if f.Rule.AutoGenGormTag && !containsTagType(f.Tags, "gorm") {
-						tags = append(f.Tags, buildEntityTag(f))
+						tags = append(f.Tags, buildGormTag(f))
 					}
 				case ModelName:
 
@@ -154,11 +170,11 @@ func buildTag(name string, path PathName, fields []*Field) *ast.BasicLit {
 				switch path {
 				case EntityName:
 					if f.Rule.AutoGenGormTag {
-						tags = append(f.Tags, buildEntityTag(f))
+						tags = append(f.Tags, buildGormTag(f))
 					}
 				case ModelName:
 					if f.Rule.EnableValidator {
-						tags = append(f.Tags, buildModelTag(f))
+						tags = append(f.Tags, buildValidatorTag(f))
 					}
 				}
 			}
@@ -176,24 +192,38 @@ func buildTag(name string, path PathName, fields []*Field) *ast.BasicLit {
 
 func containsTagType(tags []*Tag, s string) bool {
 	for _, t := range tags {
-		if t.Name == s {
+		if string(t.Name) == s {
 			return true
 		}
 	}
 	return false
 }
 
-func buildModelTag(f *Field) *Tag {
-	return buildJsonSnakeCodeTag(f.Name)
+func buildValidatorTag(f *Field) *Tag {
+	if f.Rule.EnableValidator {
+		if !containsTagType(f.Tags, string(ValidateTag)) {
+			tag := NewTag(ValidateTag)
+			if f.Rule.Parameter && f.Rule.Required {
+				if f.Name == "Id" || f.Name == "ID" {
+					return &Tag{}
+				}
+				tag.AddValue("required")
+			} else {
+				return &Tag{}
+			}
+			return tag
+		}
+	}
+	return &Tag{}
 }
 
 func buildJsonSnakeCodeTag(fieldName string) *Tag {
-	return NewTag("json").AddValue(Value(Camel2Case(fieldName)))
+	return NewTag(JsonTag).AddValue(Value(Camel2Case(fieldName)))
 }
 
-func buildEntityTag(f *Field) *Tag {
+func buildGormTag(f *Field) *Tag {
 	var (
-		gormTag = NewTag("gorm").AddValue(NewColumn(f.SnakeName))
+		gormTag = NewTag(GormTag).AddValue(NewColumn(f.SnakeName))
 	)
 	if f.Name == "Id" || f.Name == "ID" {
 		gormTag.AddValue(PrimaryKey)

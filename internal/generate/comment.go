@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var defaultGenType = []GenType{GenTypeBll, GenTypeEntity, GenTypeModel, GenTypeHttpApi, GenTypeStorePostgres}
+
 func parseCommentGenType(s string) []GenType {
 	//codeBuild: bll;store.mysql;store.postgres;api.http;api.grpc;entity;model
 	var (

@@ -44,7 +44,7 @@ import (
 			{{end}}
 		{{end}}
 	{{end}}
-	
+	{{ $break = false }}
 	"{{.ProjectName}}/model"
 	"{{.ProjectName}}/model/entity"
 	"{{.ProjectName}}/model/mapping"
@@ -141,13 +141,32 @@ func (a *{{.CamelName}}) Find(ctx context.Context, in *model.{{.StructName}}Info
 
 // build{{.StructName}} build entity
 func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.StructName}} {
-	now := time.Now()
+	{{range $v :=.Fields}}
+		{{if eq $break $true}}
+			{{break}}
+		{{end}}
+		{{if eq .Type $time}}
+			{{if eq .Rule.AutoFill $true}}
+				now := time.Now()
+				{{ $break = true }}
+			{{end}}
+		{{end}}
+	{{end}}
+
 	ety := &entity.{{.StructName}}{
 		{{range $v :=.Fields}}
 			{{if eq .Type $time}}
-				{{.Name}}: now,
+				{{if eq .Rule.AutoFill $true}}	
+					{{.Name}}: now,
+				{{else}}
+					{{.Name}}: time.Unix(0, 0),
+				{{end}}
 			{{else if eq .Type $starTime}}
-				{{.Name}}: &now,
+				{{if eq .Rule.AutoFill $true}}	
+					{{.Name}}: &now,
+				{{else}}
+					{{.Name}}: time.Unix(0, 0),
+				{{end}}
 			{{else}}
 				{{if ne .Name $ID}}
 					{{if eq .Rule.Parameter $true}} 

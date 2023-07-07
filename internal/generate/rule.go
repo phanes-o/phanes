@@ -5,6 +5,7 @@ import "strings"
 const (
 	Parameter       = "parameter"
 	Required        = "required"
+	AutoFill        = "autofill"
 	AutoGenGormTag  = "autogengormtag"
 	EnableValidator = "enablevalidator"
 	NameStyle       = "namestyle"
@@ -27,6 +28,9 @@ type Rule struct {
 	// AutoGenGormTag: generator will auto codeBuild gorm's tag.
 	// if not specify this rule and not specify gorm's or others orm's tag the field's tag will be empty
 	AutoGenGormTag bool
+
+	// AutoFill
+	AutoFill bool
 
 	// EnableValidator: enable http parameter validator, but you must specify validator tag.
 	// if you have no this validator tag EnableValidator is invalid
@@ -71,6 +75,10 @@ func ParseRule(rules Value) *Rule {
 
 			if strings.ToLower(r) == EnableValidator {
 				rule.EnableValidator = true
+			}
+
+			if strings.ToLower(r) == AutoFill {
+				rule.AutoFill = true
 			}
 		}
 	}

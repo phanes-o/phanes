@@ -61,16 +61,18 @@ func ReadSource(filename string) (*Generator, error) {
 				templateField[structName] = tmpl
 
 				if len(currentGenType) == 0 {
-					currentGenType = []GenType{GenTypeBll, GenTypeEntity, GenTypeModel, GenTypeHttpApi, GenTypeStorePostgres}
+					currentGenType = defaultGenType
 				}
 				result := &Result{
 					Path:  resolvePaths(project, pwd, currentStruct, currentPath, destinations(project, pwd)),
 					Codes: codeBuild(currentGenType, node, tmpl),
 				}
 
-				currentPath = make(map[PathName]string)
 				genTypes[structName] = currentGenType
 				results[structName] = result
+
+				currentPath = make(map[PathName]string)
+				currentGenType = make([]GenType, 0)
 			}
 		case *ast.ImportSpec:
 			imports = append(imports, node.Path.Value)
@@ -91,7 +93,7 @@ func ReadSource(filename string) (*Generator, error) {
 					os.Exit(1)
 				}
 			case CmdGenerate:
-				currentGenType = append(genTypes[currentStruct], parseCommentGenType(split[1])...)
+				currentGenType = append(currentGenType, parseCommentGenType(split[1])...)
 			case CmdDir:
 				name, path := parseCommentDir(split[1])
 				currentPath[name] = path
