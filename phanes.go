@@ -7,6 +7,7 @@ import (
 	"github.com/phanes-o/phanes/internal/generate"
 	"github.com/phanes-o/phanes/internal/project"
 	"github.com/phanes-o/phanes/internal/proto"
+	"github.com/phanes-o/phanes/internal/register"
 	"github.com/phanes-o/phanes/internal/run"
 	"github.com/phanes-o/phanes/internal/upgrade"
 
@@ -14,7 +15,7 @@ import (
 )
 
 // release is the current phanes tool version.
-const release = "v0.1.36"
+var release = version
 
 var rootCmd = &cobra.Command{
 	Use:     "phanes",
@@ -30,6 +31,7 @@ func init() {
 	rootCmd.AddCommand(run.CmdRun)
 	rootCmd.AddCommand(env.Cmd)
 	rootCmd.AddCommand(generate.Cmd)
+	rootCmd.AddCommand(register.Cmd)
 }
 
 func main() {

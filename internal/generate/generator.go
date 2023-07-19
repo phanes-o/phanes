@@ -9,6 +9,7 @@ import (
 
 	"github.com/fatih/color"
 	templ "github.com/phanes-o/phanes/internal/generate/template"
+	"github.com/phanes-o/phanes/internal/utils"
 )
 
 const (
@@ -171,8 +172,8 @@ func (g *Generator) save() {
 	for k, v := range g.Results {
 		for pathName, code := range v.Codes {
 			path := v.Path[pathName]
-			if !fileExists(path) {
-				if err := writeFile(path, code.Bytes()); err != nil {
+			if !utils.FileExists(path) {
+				if err := utils.WriteFile(path, code.Bytes()); err != nil {
 					fmt.Println(color.RedString(fmt.Sprintf("ERROR: Failed to save [%s] code", k)), "❌  ")
 					continue
 				}

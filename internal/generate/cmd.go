@@ -6,6 +6,7 @@ import (
 	"path"
 
 	"github.com/fatih/color"
+	"github.com/phanes-o/phanes/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	// If enable workspace. check workspace environment. means Phanes command must run in go workspace
 	if workspace {
-		if !checkEnvironment() {
+		if !utils.CheckEnvironment() {
 			fmt.Println(color.RedString(fmt.Sprintf("ERROR: can not detection go workspace. please run `go work init` to init go workspace")))
 			return
 		}
@@ -49,7 +50,7 @@ func run(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	if !fileExists(path.Join(pwd, configName)) {
+	if !utils.FileExists(path.Join(pwd, configName)) {
 		fmt.Println(color.RedString("Generate config file does exist!"))
 		os.Exit(1)
 	}

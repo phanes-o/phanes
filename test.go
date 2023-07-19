@@ -33,11 +33,11 @@ type Person struct {
 //project:hello
 //generate:model;entity;store.postgres
 type Manager struct {
-	Id        int64          `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	Name      string         `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	Arm       string         `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	Age       int            `rule:"AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	Phones    pq.StringArray `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	CreatedAt time.Time      `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	UpdatedAt time.Time      `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Id        int64     `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Name      string    `rule:"Parameter;Required;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Arm       string    `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Age       int       `rule:"AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	Phones    string    `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	CreatedAt time.Time `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	UpdatedAt time.Time `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 }

@@ -1,4 +1,4 @@
-package generate
+package utils
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/fatih/color"
 )
 
-func writeFile(filePath string, data []byte) error {
+func WriteFile(filePath string, data []byte) error {
 	var (
 		f   *os.File
 		err error

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/phanes-o/phanes/internal/utils"
 	"golang.org/x/tools/go/ast/astutil"
 )
 
@@ -87,7 +88,7 @@ func ReadSource(filename string) (*Generator, error) {
 			switch GenCmd(split[0]) {
 			case CmdProject:
 				project = split[1]
-				if !checkProjectExist(path.Join(pwd, project)) {
+				if !utils.CheckProjectExist(path.Join(pwd, project)) {
 					fmt.Println(color.RedString(fmt.Sprintf("Project [%s] does not exist", project)), "❌ ")
 					fmt.Println(color.BlueString("Please run [phanes new example] create a project first"))
 					os.Exit(1)

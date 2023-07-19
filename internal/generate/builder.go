@@ -10,13 +10,13 @@ import (
 )
 
 const (
+	Info          = "Info"
+	InfoRequest   = "InfoRequest"
+	ListRequest   = "ListRequest"
+	ListResponse  = "ListResponse"
 	CreateRequest = "CreateRequest"
 	UpdateRequest = "UpdateRequest"
 	DeleteRequest = "DeleteRequest"
-	InfoRequest   = "InfoRequest"
-	Info          = "Info"
-	ListRequest   = "ListRequest"
-	ListResponse  = "ListResponse"
 )
 
 func buildTemplateField(project string, structName StructName, n *ast.StructType) *TemplateField {
