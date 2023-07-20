@@ -1,9 +1,9 @@
 ## Phanes
 
-[Quick Start](https://learnku.com/articles/69363)
+[Quick Start](https://bean-du.github.io)
 
 Version
-The version of Phanes must be v0.1.0 or above.
+The version of Phanes must be v0.1.35 or above.
 
 Environment Requirements
 These environments and tools must be installed properly.
