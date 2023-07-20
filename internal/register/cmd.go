@@ -52,7 +52,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	// parse package and ast file
 	if bytes, err = parsePackage(pwd, project); err != nil {
-		fmt.Println(color.RedString("parse file error"))
+		fmt.Println(color.RedString(fmt.Sprintf("parse file error: %+v", err)))
 		os.Exit(1)
 	}
 
@@ -64,6 +64,7 @@ func run(cmd *cobra.Command, args []string) {
 			fmt.Println(color.RedString("write code to file error"))
 			os.Exit(1)
 		}
+		fmt.Println(color.GreenString("successfully!"))
 	} else {
 		fmt.Println(color.RedString("register file already exist!"))
 	}

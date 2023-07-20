@@ -3,10 +3,10 @@ package register
 import "encoding/json"
 
 type Resource struct {
-	Parent bool
-	Name   string
-	Type   string
-	Path   string
+	Parent bool   `json:"parent"`
+	Name   string `json:"name"`
+	Type   string `json:"type"`
+	Path   string `json:"path"`
 }
 
 func (p *Resource) ToJsonBytes() []byte {

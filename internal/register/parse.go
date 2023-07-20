@@ -26,7 +26,8 @@ var (
 )
 
 type Tmpl struct {
-	Fields []*Field
+	Fields      []*Field
+	ProjectName string
 }
 type Field struct {
 	Name  string
@@ -39,7 +40,7 @@ func parsePackage(pwd string, project string) ([]byte, error) {
 		p      = path.Join(pwd, project, packagePrefix)
 		err    error
 		text   []byte
-		fields = &Tmpl{Fields: make([]*Field, 0)}
+		fields = &Tmpl{Fields: make([]*Field, 0), ProjectName: project}
 	)
 	// parse package
 
@@ -68,10 +69,10 @@ func parsePackage(pwd string, project string) ([]byte, error) {
 							}
 							if errors.Is(err, MultipleParentError) {
 								fmt.Printf("Error: package: %s, line: %v, error: %+v", pkg.Name, fn.Pos(), err)
-								fmt.Println(pkg.Name)
 								return nil, err
 							}
 						}
+						// todo：support #[register()]
 						bytes, _ := json.Marshal(resources)
 						if name != "" {
 							fields.Fields = append(fields.Fields, &Field{
@@ -117,6 +118,7 @@ func parseRegisterComment(doc *ast.CommentGroup) ([]*Resource, string, error) {
 		if doc[0] != '#' {
 			continue
 		}
+		doc = strings.Trim(doc, " ")
 		str := strings.TrimRight(strings.TrimLeft(doc, "#["), "]")
 
 		if strings.Contains(str, "register(") {

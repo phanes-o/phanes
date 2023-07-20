@@ -7,8 +7,8 @@ import (
 	"context"
 	"time"
 
-	"auth/config"
-	"auth/utils"
+	"{{.ProjectName}}/config"
+	"{{.ProjectName}}/utils"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
