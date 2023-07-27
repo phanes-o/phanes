@@ -49,7 +49,7 @@ func buildRuleFromTags(tags map[string]Value) *Rule {
 
 // ParseRule parse rule from tag Value
 func ParseRule(rules Value) *Rule {
-	var rule = &Rule{NameStyle: SnakeCase}
+	var rule = &Rule{NameStyle: SnakeCase, AutoGenGormTag: true, EnableValidator: true}
 	splitRules := strings.Split(string(rules), ";")
 	if len(splitRules) > 0 {
 		for _, r := range splitRules {

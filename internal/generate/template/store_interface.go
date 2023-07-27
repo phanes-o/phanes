@@ -9,8 +9,8 @@ package store
 
 import (
 	"context"
-	"{{.ProjectName}}/model"
-	"{{.ProjectName}}/model/entity"
+	"{{.Module}}/model"
+	"{{.Module}}/model/entity"
 )
 
 type I{{.StructName}} interface {

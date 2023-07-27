@@ -14,11 +14,11 @@ import (
 	"context"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	log "{{.ProjectName}}/collector/logger"
-	"{{.ProjectName}}/config"
-	"{{.ProjectName}}/errors"
-	"{{.ProjectName}}/model"
-	"{{.ProjectName}}/model/entity"
+	log "{{.Module}}/collector/logger"
+	"{{.Module}}/config"
+	"{{.Module}}/errors"
+	"{{.Module}}/model"
+	"{{.Module}}/model/entity"
 )
 
 var {{.StructName}} = &{{.CamelName}}{}

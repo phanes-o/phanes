@@ -57,7 +57,7 @@ func ReadSource(filename string) (*Generator, error) {
 				if currentStruct != structName {
 					currentStruct = structName
 				}
-				tmpl := buildTemplateField(project, structName, n)
+				tmpl := buildTemplateField(pwd, project, structName, n)
 				tmpl.Imports = imports
 				templateField[structName] = tmpl
 

@@ -12,8 +12,8 @@ var mapping = `
 package mapping
 
 import (
-	"{{.ProjectName}}/model"
-	"{{.ProjectName}}/model/entity"
+	"{{.Module}}/model"
+	"{{.Module}}/model/entity"
 )
 
 

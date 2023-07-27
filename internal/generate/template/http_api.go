@@ -10,10 +10,10 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"{{.ProjectName}}/bll"
-	"{{.ProjectName}}/model"
-	"{{.ProjectName}}/server/web/middleware"
-	"{{.ProjectName}}/utils"
+	"{{.Module}}/bll"
+	"{{.Module}}/model"
+	"{{.Module}}/server/web/middleware"
+	"{{.Module}}/utils"
 )
 
 var {{.StructName}} = &{{.CamelName}}{}

@@ -6,7 +6,10 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"os"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 const (
@@ -19,10 +22,17 @@ const (
 	DeleteRequest = "DeleteRequest"
 )
 
-func buildTemplateField(project string, structName StructName, n *ast.StructType) *TemplateField {
+func buildTemplateField(pwd, project string, structName StructName, n *ast.StructType) *TemplateField {
 	var (
 		fields = make([]*Field, 0)
 	)
+
+	module, err := getModule(pwd, project)
+	if err != nil {
+		fmt.Println(color.RedString(fmt.Sprintf("ERROR: Failed to open go.mod file. [%s]", err.Error())), "❌  ")
+		os.Exit(0)
+	}
+	
 	for _, f := range n.Fields.List {
 		tags := parseStructTags(f.Tag)
 		var rule = buildRuleFromTags(tags)
@@ -40,6 +50,7 @@ func buildTemplateField(project string, structName StructName, n *ast.StructType
 		Fields:      fields,
 		StructName:  structName,
 		ProjectName: project,
+		Module:      module,
 	}
 }
 

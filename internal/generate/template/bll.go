@@ -45,11 +45,11 @@ import (
 		{{end}}
 	{{end}}
 	{{ $break = false }}
-	"{{.ProjectName}}/model"
-	"{{.ProjectName}}/model/entity"
-	"{{.ProjectName}}/model/mapping"
-	"{{.ProjectName}}/store"
-	"{{.ProjectName}}/store/postgres"
+	"{{.Module}}/model"
+	"{{.Module}}/model/entity"
+	"{{.Module}}/model/mapping"
+	"{{.Module}}/store"
+	"{{.Module}}/store/postgres"
 	"time"
 )
 

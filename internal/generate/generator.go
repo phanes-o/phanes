@@ -50,6 +50,7 @@ type TemplateField struct {
 	StructName  StructName
 	CamelName   string
 	ProjectName string
+	Module      string
 }
 
 func (tf *TemplateField) getFieldRule(name string) *Rule {
