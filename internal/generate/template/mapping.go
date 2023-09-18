@@ -30,7 +30,7 @@ func {{.StructName}}sEntityToDto({{.CamelName}}s []*entity.{{.StructName}}) []*m
 func {{.StructName}}EntityToDto(e *entity.{{.StructName}}) *model.{{.StructName}}Info {
 	return &model.{{.StructName}}Info{
 		{{range $v :=.Fields}}
-			{{.Name}}: {{if or (eq .Type $time) (eq .Type $starTime)}}e.{{.Name}}.Unix(),{{else}}e.{{.Name}},{{end}}
+			{{.Name}}: {{if or (eq .Type $time) (eq .Type $starTime)}}e.{{.Name}},{{else}}e.{{.Name}},{{end}}
 		{{end}}
 	}
 }

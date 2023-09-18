@@ -8,7 +8,7 @@ var mysql = `
 {{$string := "string"}}
 {{$true := true}}
 
-package postgres
+package mysql
 
 import (
 	"context"

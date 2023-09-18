@@ -159,13 +159,13 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 				{{if eq .Rule.AutoFill $true}}	
 					{{.Name}}: now,
 				{{else}}
-					{{.Name}}: time.Unix(0, 0),
+					{{.Name}}: 	time.Now().Unix(),
 				{{end}}
 			{{else if eq .Type $starTime}}
 				{{if eq .Rule.AutoFill $true}}	
 					{{.Name}}: &now,
 				{{else}}
-					{{.Name}}: time.Unix(0, 0),
+					{{.Name}}: 	time.Now().Unix(),
 				{{end}}
 			{{else}}
 				{{if ne .Name $ID}}
