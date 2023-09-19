@@ -420,7 +420,7 @@ func buildCreateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 				if rule.Parameter {
 					field := buildField(f, ModelName, tmpl)
 					if !rule.Required {
-						field = rebuildFieldAsStar(field, tmpl)
+						//field = rebuildFieldAsStar(field, tmpl)
 					}
 					fields = append(fields, field)
 				}
