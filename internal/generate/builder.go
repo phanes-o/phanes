@@ -32,7 +32,7 @@ func buildTemplateField(pwd, project string, structName StructName, n *ast.Struc
 		fmt.Println(color.RedString(fmt.Sprintf("ERROR: Failed to open go.mod file. [%s]", err.Error())), "❌  ")
 		os.Exit(0)
 	}
-	
+
 	for _, f := range n.Fields.List {
 		tags := parseStructTags(f.Tag)
 		var rule = buildRuleFromTags(tags)
@@ -74,9 +74,13 @@ func buildEntityCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 	)
 
 	decls := []ast.Decl{
-		buildImport(tmpl, false),
 		buildEntityStruct(n, tmpl),
 		buildEntityMethod(n),
+	}
+
+	importsDecl, ok := buildImport(tmpl, false)
+	if ok {
+		decls = append([]ast.Decl{importsDecl}, decls...)
 	}
 
 	file := &ast.File{
@@ -96,7 +100,6 @@ func buildModelCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 		packageName = "model"
 	)
 	decls := []ast.Decl{
-		buildImport(tmpl, true),
 		buildCreateRequest(n, tmpl),
 		buildUpdateRequest(n, tmpl),
 		buildListRequest(n, tmpl),
@@ -104,6 +107,11 @@ func buildModelCode(n ast.Node, tmpl *TemplateField) *bytes.Buffer {
 		buildInfoRequest(n, tmpl),
 		buildInfoResponse(n, tmpl),
 		buildDeleteRequest(n, tmpl),
+	}
+
+	importsDecl, ok := buildImport(tmpl, true)
+	if ok {
+		decls = append([]ast.Decl{importsDecl}, decls...)
 	}
 
 	file := &ast.File{
@@ -185,7 +193,7 @@ func buildEntityMethod(n ast.Node) ast.Decl {
 	return nil
 }
 
-func buildImport(tmpl *TemplateField, isModel bool) ast.Decl {
+func buildImport(tmpl *TemplateField, isModel bool) (ast.Decl, bool) {
 	specs := make([]ast.Spec, 0, len(tmpl.Imports))
 
 	for _, i := range tmpl.Imports {
@@ -203,7 +211,7 @@ func buildImport(tmpl *TemplateField, isModel bool) ast.Decl {
 	return &ast.GenDecl{
 		Tok:   token.IMPORT,
 		Specs: specs,
-	}
+	}, len(specs) > 0
 }
 
 func buildDeleteRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
@@ -412,7 +420,7 @@ func buildCreateRequest(n ast.Node, tmpl *TemplateField) *ast.GenDecl {
 				if rule.Parameter {
 					field := buildField(f, ModelName, tmpl)
 					if !rule.Required {
-						field = rebuildFieldAsStar(field, tmpl)
+						//field = rebuildFieldAsStar(field, tmpl)
 					}
 					fields = append(fields, field)
 				}

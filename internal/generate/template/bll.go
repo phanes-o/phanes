@@ -27,6 +27,7 @@ var bll = `
 {{$required := "Required"}}
 {{$projectName := .ProjectName}}
 {{ $break := false }}
+{{$createJson := "CreatedAt"}}
 package bll 
 
 import (
@@ -159,13 +160,13 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 				{{if eq .Rule.AutoFill $true}}	
 					{{.Name}}: now,
 				{{else}}
-					{{.Name}}: time.Unix(0, 0),
+					{{.Name}}: 	time.Now().Unix(),
 				{{end}}
 			{{else if eq .Type $starTime}}
 				{{if eq .Rule.AutoFill $true}}	
 					{{.Name}}: &now,
 				{{else}}
-					{{.Name}}: time.Unix(0, 0),
+					{{.Name}}: 	time.Now().Unix(),
 				{{end}}
 			{{else}}
 				{{if ne .Name $ID}}
@@ -198,9 +199,11 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 		{{if eq .Rule.Parameter $true}}
 			{{if ne .Rule.Required $true}}
 				{{if or (eq .Type $string) (eq .Type $int) (eq .Type $int32) (eq .Type $int64)}}
-					if in.{{.Name}} != nil {
-						ety.{{.Name}} = *in.{{.Name}}
-					}
+					{{if eq .Name $createJson}}
+						ety.{{.Name}} = time.Now().Unix()
+					{{else}}
+						ety.{{.Name}} = in.{{.Name}}
+					{{end}}
 				{{else if eq .Type $pqStringArray}}
 					if len(in.{{.Name}}) != 0 {
 						ety.{{.Name}} = in.{{.Name}}
@@ -209,25 +212,25 @@ func build{{.StructName}}(in *model.{{.StructName}}CreateRequest) *entity.{{.Str
 					}
 				{{else if eq .Type $pqFloat32Array}}
 					if len(in.{{.Name}}) != 0 {
-						ety.{{.Name}} = *in.{{.Name}}
+						ety.{{.Name}} = in.{{.Name}}
 					}else {
 						ety.{{.Name}} = pq.Float32Array{}
 					}
 				{{else if eq .Type $pqFloat64Array}}
 					if len(in.{{.Name}}) != 0 {
-						ety.{{.Name}} = *in.{{.Name}}
+						ety.{{.Name}} = in.{{.Name}}
 					}else {
 						ety.{{.Name}} = pq.Float64Array{}
 					}
 				{{else if eq .Type $pqInt32Array}}
 					if len(in.{{.Name}}) != 0 {
-						ety.{{.Name}} = *in.{{.Name}}
+						ety.{{.Name}} = in.{{.Name}}
 					}else {
 						ety.{{.Name}} = pq.Int32Array{}
 					}
 				{{else if eq .Type $pqInt64Array}}
 					if len(in.{{.Name}}) != 0 {
-						ety.{{.Name}} = *in.{{.Name}}
+						ety.{{.Name}} = in.{{.Name}}
 					}else {
 						ety.{{.Name}} = pq.Int64Array{}
 					}
