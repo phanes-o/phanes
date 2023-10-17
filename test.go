@@ -27,7 +27,7 @@ type Person struct {
 	Phones    pq.StringArray `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
 	CreatedAt time.Time      `rule:"Parameter;AutoFill;AutoGenGormTag;NameStyle:snake_case;EnableValidator" validate:"required;"`
 	OrderTime time.Time      `rule:"Parameter;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
-	UpdatedAt time.Time      `rule:"Parameter;AutoFill;AutoGenGormTag;NameStyle:snake_case;EnableValidator"`
+	UpdatedAt time.Time      `rule:"Parameter;Required"`
 }
 
 //project:hello
