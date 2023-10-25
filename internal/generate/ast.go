@@ -60,6 +60,7 @@ func ReadSource(filename string) (*Generator, error) {
 				tmpl := buildTemplateField(pwd, project, structName, n)
 				tmpl.Imports = imports
 				templateField[structName] = tmpl
+				imports = make([]string, 0)
 
 				if len(currentGenType) == 0 {
 					currentGenType = defaultGenType

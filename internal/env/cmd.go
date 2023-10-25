@@ -25,7 +25,7 @@ var (
 )
 
 func init() {
-	Cmd.PersistentFlags().BoolVarP(&boolVarVerbose, "verbose", "v", false, "Enable log output")
+	Cmd.PersistentFlags().BoolVarP(&boolVarVerbose, "verbose", "v", false, "Enable logger output")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(checkCmd)
 }

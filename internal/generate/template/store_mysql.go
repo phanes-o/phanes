@@ -8,13 +8,13 @@ var mysql = `
 {{$string := "string"}}
 {{$true := true}}
 
-package postgres
+package mysql
 
 import (
 	"context"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	log "{{.Module}}/collector/logger"
+	logger "{{.Module}}/collector/logger"
 	"{{.Module}}/config"
 	"{{.Module}}/errors"
 	"{{.Module}}/model"
@@ -34,13 +34,13 @@ func (a *{{.CamelName}}) Init() {
 	if config.Conf.AutoMigrate {
 		p := &entity.{{.StructName}}{}
 		if db.Migrator().HasTable(p) {
-			log.Debug("table already exist: ", zap.String("table", p.TableName()))
+			logger.Debug("table already exist: ", zap.String("table", p.TableName()))
 			return
 		}
 		if err := db.AutoMigrate(p); err != nil {
-			log.Error("filed to create table please check config or manually create", zap.String("table", p.TableName()), zap.String("err", err.Error()))
+			logger.Error("filed to create table please check config or manually create", zap.String("table", p.TableName()), zap.String("err", err.Error()))
 		} else {
-			log.Info("create table successfully", zap.String("table", p.TableName()))
+			logger.Info("create table successfully", zap.String("table", p.TableName()))
 		}
 	}
 }

@@ -13,7 +13,7 @@ var (
 
 		"github.com/phanes-o/proto/base"
 		"github.com/phanes-o/proto/dto"
-		log "go-micro.dev/v4/logger"
+		logger "go-micro.dev/v4/logger"
 	)
 	
 	var User = &user{}
