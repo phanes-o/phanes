@@ -95,8 +95,7 @@ func (a *{{.CamelName}}) Update(ctx context.Context, in *model.{{.StructName}}Up
 		{{end}}
 	{{end}}
 	// do other update here
-	updateAt := time.Now().Unix()
-	in.UpdatedAt = &updateAt
+	in.UpdatedAt = time.Now().Unix()
 	return a.i{{.StructName}}.Update(ctx, in.Id, dict)
 }
 
@@ -113,6 +112,8 @@ func (a *{{.CamelName}}) List(ctx context.Context, in *model.{{.StructName}}List
 		list []*entity.{{.StructName}} 
 		out = &model.{{.StructName}}ListResponse{}
 	)
+
+	in.Size, in.Index = utils.PageUtil(in.Size, in.Index)
 
 	if total, list, err = a.i{{.StructName}}.List(ctx,in); err != nil {
 		return nil, err

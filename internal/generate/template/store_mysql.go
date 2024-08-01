@@ -18,6 +18,7 @@ import (
 	"{{.Module}}/config"
 	"{{.Module}}/errors"
 	"{{.Module}}/model"
+	"{{.Module}}/utils"
 	"{{.Module}}/model/entity"
 )
 
@@ -48,20 +49,25 @@ func (a *{{.CamelName}}) Init() {
 
 // Create 
 func (a *{{.CamelName}}) Create(ctx context.Context, m *entity.{{.StructName}}) (int64, error) {
+	if utils.SnowGen != nil { 
+		m.Id = utils.SnowGen.Generate().Int64()
+	}
 	err := GetDB(ctx).Create(m).Error
 	return m.Id, err
 }
 
 // Find detail
 func (a *{{.CamelName}}) Find(ctx context.Context, in *model.{{.StructName}}InfoRequest ) (*entity.{{.StructName}}, error ){
-	e := &entity.{{.StructName}}{}
+	e := &entity.{{.StructName}}{
+		Id: in.Id,
+	}
 
 	q := GetDB(ctx).Model(&entity.{{.StructName}}{})
 
 	if in.Id == 0 {
 		return e, errors.New("condition illegal")
 	}
-	err := q.First(&e).Error
+	err := q.Find(&e).Error
 	return e, err
 }
 
